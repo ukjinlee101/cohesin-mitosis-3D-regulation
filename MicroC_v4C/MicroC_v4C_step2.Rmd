@@ -195,7 +195,8 @@ fileList <- fileList %>% dplyr::rowwise() %>% dplyr::mutate(ensembl = unlist(str
                            gene = unlist(strsplit(note, "__"))[[1]],
                            vp = paste(ensembl, gene, sep = "."))
 vpList <- unique(fileList$vp)
-expList <- c("G1DMSO_pooled", "G1dTAG_pooled", "G1A485_pooled", "EpiG1DMSO_pooled", "EpiG1dTAG_pooled", "GSE178982_AsyncUT_pooled", "GSE178982_AsyncAID_pooled")
+expList <- c("G1DMSO_pooled", "G1dTAG_pooled", "G1A485_pooled", "EpiG1DMSO_pooled", "EpiG1dTAG_pooled")
+# expList <- c("G1DMSO_pooled", "G1dTAG_pooled", "G1A485_pooled", "EpiG1DMSO_pooled", "EpiG1dTAG_pooled", "GSE178982_AsyncUT_pooled", "GSE178982_AsyncAID_pooled")
 resList <- c(5, 10)
 
 for(vp in vpList){

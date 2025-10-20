@@ -1069,6 +1069,25 @@ draw_v4c_EpiLCvsESC ("", "ENSMUSG00000017724.Etv4", "chr11", 10,
                     ymax = 1200, diffYmax = 500,
                     color_esc_dark, color_epi_dark, width = 2)
 
+draw_v4c_EpiLCvsESC ("", "ENSMUSG00000019960.Dusp6", "chr10", 10,
+                    xmin = 98900000, xmax = 99700000, 
+                    ymax = 1200, diffYmax = 300,
+                    color_esc_dark, color_epi_dark, width = 2)
 
+draw_v4c_EpiLCvsESC ("", "ENSMUSG00000025880.Smad7", "chr18", 10,
+                    xmin = 74600000, xmax = 76000000, 
+                    ymax = 1200, diffYmax = 300,
+                    color_esc_dark, color_epi_dark, width = 2)
+
+draw_v4c_EpiLCvsESC ("", "ENSMUSG00000033730.Egr3", "chr14", 10,
+                    xmin = 69500000, xmax = 70500000, 
+                    ymax = 1200, diffYmax = 300,
+                    color_esc_dark, color_epi_dark, width = 2)
+
+
+draw_v4c_EpiLCvsESC ("", "ENSMUSG00000038418.Egr1", "chr18", 10,
+                    xmin = 34400000, xmax = 35400000, 
+                    ymax = 1200, diffYmax = 300,
+                    color_esc_dark, color_epi_dark, width = 2)
 
 ```
