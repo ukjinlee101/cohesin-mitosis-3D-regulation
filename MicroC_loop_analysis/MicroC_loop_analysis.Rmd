@@ -17367,3 +17367,281 @@ data%>% dplyr::filter(
 loopDir
 ```
 
+## Exploratory analysis for EpiLC vs ESC loops
+### Loop size
+```{r}
+# Importing loops
+commonLoopDir <- here("../data/loop_analysis")
+loop_chromo <- as_tibble(fread(here(commonLoopDir, "loopScore_chromosight.tsv")))
+
+
+plotLoopSize <- function(loop_chromo, annoList, name){
+  temp <- loop_chromo %>% dplyr::mutate(diff = score_EpiDMSO - score_DMSO,
+                                        size = start2 - start1,
+                                        flag = case_when(
+                                          diff > 0.2 ~ "UP",
+                                          diff < -0.2 ~ "DOWN",
+                                          TRUE ~ "NO"
+                                        )) %>%
+    dplyr::filter(Anno %in% annoList)
+  
+  temp$flag <- factor(temp$flag, levels = c("UP", "NO", "DOWN"))
+  
+  
+  # Size distribution
+  p1 <- ggplot(temp, aes(x = flag, y = size, fill = flag)) +
+    geom_violin(linewidth = lineThick * mmToLineUnit, lineend = "square", alpha = .4, show.legend = FALSE,
+                color = "black") + 
+    geom_boxplot(width = 0.3, color = "black",
+                 linewidth = lineThick * mmToLineUnit, lineend = "square",
+                 outlier.shape = NA,  alpha = 0.6, show.legend = FALSE) + 
+    theme_classic() + 
+    stat_summary(
+      aes(group = flag), fun = mean,
+      geom = "point", shape = 21, size = 0.5,
+      fill = "black", color = "black", position = position_dodge(.3)
+    ) + scale_y_continuous(labels = label_kb_mb) +
+    scale_fill_manual(values = c(strong_red, "grey30", strong_blue)) +
+    theme(
+      axis.title.x = element_blank(),
+      axis.title.y = element_text(
+        size = fontSizeM,
+        family = fontType,
+        color = "#000000"
+      ),
+      axis.text = element_text(
+        size = fontSizeS,
+        family = fontType,
+        color = "#000000"
+      ),
+      axis.text.x = element_text(
+        size = fontSizeM,
+        angle = 45,      # Rotate x-axis labels 45 degrees
+        hjust = 1,       # Adjust horizontal justification
+        vjust = 1        # Adjust vertical justification
+      ),
+      axis.line = element_line(
+        color = "#000000",
+        size = lineThick*mmToLineUnit,
+        lineend = "square"
+      ),
+      axis.ticks = element_line(
+        color = "#000000",
+        size = lineThick*mmToLineUnit,
+        lineend = "square"
+      ),
+      panel.background = element_rect(fill = "transparent"),
+      legend.text = element_text(family = fontType, size = fontSizeS),
+      legend.title = element_text(family = fontType, size = fontSizeS)
+    ) +labs(y = "Loop size") 
+  
+  width <- panelSize(1.2)*mmToInch
+  height <- panelSize(1.6)*mmToInch
+  fileName <- paste0("violin_EpiLCvsESC_loopSize_", name)
+  svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
+  print(p1)
+  dev.off()  
+}
+
+plotLoopSize(loop_chromo, unique(temp$Anno), "allLoop")
+plotLoopSize(loop_chromo, c("P-P", "P-E", "E-E"), "regLoop")
+plotLoopSize(loop_chromo, c("S-S", "S-X"), "strLoop")
+```
+
+### Loop classification
+```{r}
+# Loop classification
+temp <- loop_chromo %>% dplyr::mutate(diff = score_EpiDMSO - score_DMSO,
+                              size = start2 - start1,
+                              flag = case_when(
+                                diff > 0.2 ~ "UP",
+                                diff < -0.2 ~ "DOWN",
+                                TRUE ~ "NO"
+                              ),
+                              AnnoGroup = case_when(
+                                Anno %in% c("P-P", "P-E", "E-E") ~ "Reg (P-P, P-E, E-E)",
+                                
+                                Anno %in% c("P-S", "E-S") ~ "Reg/Str mixed",
+                                Anno %in% c("P-SP", "P-SE", "E-SP", "E-SE") ~ "Reg/Str mixed",
+                                Anno %in% c("SP-SP", "SP-SE", "SE-SE") ~ "Reg/Str mixed",
+                                Anno %in% c("SP-S", "SE-S") ~ "Reg/Str mixed",
+                                
+                                Anno %in% c("S-S", "S-X") ~ "Str (S-S, S-X)",
+                                Anno %in% c("P-X", "E-X") ~ "Reg-Other",
+                                Anno %in% c("SP-X", "SE-X") ~ "StrReg-Other",
+                                Anno %in% c("X-X") ~ "Other",
+                                TRUE ~ NA
+                              ))
+temp$AnnoGroup <- factor(temp$AnnoGroup, levels = c("Reg (P-P, P-E, E-E)",
+                                                    "Reg/Str mixed",
+                                                    "Str (S-S, S-X)",
+                                                    "Reg-Other",
+                                                    "StrReg-Other",
+                                                    "Other"))
+temp$flag <- factor(temp$flag, levels = c("UP", "NO", "DOWN"))
+
+plot_data <- temp %>%
+  dplyr::group_by(flag, AnnoGroup) %>%
+  dplyr::summarise(value = n(), .groups = 'drop') %>%
+  dplyr::group_by(flag) %>%
+  dplyr::mutate(percentage = value / sum(value)) # No need to multiply by 100 if using scales::percent
+
+
+# --- This is the edited plotting code ---
+p <- ggplot(plot_data, aes(x = flag, y = percentage, fill = AnnoGroup)) +
+  geom_bar(position="stack", stat="identity") +
+  scale_y_continuous(labels = scales::percent) + # Format y-axis as percentage
+  labs(
+    x = NULL,
+    y = "Percentage"
+  ) +
+  theme(
+    axis.title = element_text(
+      size = fontSizeM, family = fontType, color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeM, family = fontType, color = "#000000"
+    ),
+    axis.text.x = element_text(
+      angle = 45, hjust = 1,
+      size = fontSizeM, family = fontType, color = "#000000"
+    ),
+    axis.text.y = element_text(
+      size = fontSizeS, family = fontType, color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000", size = lineThick * mmToLineUnit, lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000", size = lineThick * mmToLineUnit, lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+    legend.text = element_text(family = fontType, size = fontSizeS),
+    legend.title = element_text(family = fontType, size = fontSizeS)
+  ) +  guides(
+    fill = guide_legend(
+      keywidth = 0.2,
+      keyheight = 0.2
+    )
+  )
+
+fileName <- paste0("Barplot_loopAnno_Chromosight_EpiDMSOvsESC")
+width <- panelSize(2)*mmToInch
+height <- panelSize(1.75)*mmToInch
+svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
+print(p)
+dev.off()
+```
+
+### SE overlap percentage
+```{r}
+# Overlap with SE
+peak.Dylan.SE <- importPeak(here(refDir, "mm10", "superEnhancer_Dylan_ESC.bed"))
+
+countOverlapLoopNumAnchorExpand <- function(loop, peak, expandSize = 25000){
+  # Extract anchor and expand
+  anchor1 <- loop %>% dplyr::select(c(1, 2, 3))
+  colnames(anchor1) <- c("chr", "start", "end")
+  
+  anchor1 <- resize(makeGRangesFromDataFrame(anchor1), width = expandSize, fix = "center")  
+  
+  anchor2 <- loop %>% dplyr::select(c(4, 5, 6))
+  colnames(anchor2) <- c("chr", "start", "end")
+  anchor2 <- resize(makeGRangesFromDataFrame(anchor2), width = expandSize, fix = "center")  
+  
+  overlap <- unique(c(queryHits(findOverlaps(anchor1, peak)),
+           queryHits(findOverlaps(anchor2, peak))))
+  return(length(overlap))
+}
+
+
+getSEOverlapFisher <- function(loop1, loop2, peak){
+  # This is testing enrichment of peak at loop1 vs loop2
+  loop1.overlap <- countOverlapLoopNumAnchorExpand(loop1, peak)
+  loop1.noOverlap <- nrow(loop1) - loop1.overlap
+  
+  loop2.overlap <- countOverlapLoopNumAnchorExpand(loop2, peak)
+  loop2.noOverlap <- nrow(loop2) - loop2.overlap
+  
+  
+  contingency_table <- matrix(c(loop1.overlap, loop1.noOverlap,
+                                loop2.overlap, loop2.noOverlap), nrow = 2, byrow = TRUE)
+  colnames(contingency_table) <- c("Overlap", "NoOverlap")
+  rownames(contingency_table) <- c("LoopA", "LoopB")
+  
+  # Perform Fisher's Exact Test
+  fisher_test_result <- fisher.test(contingency_table)
+  return(fisher_test_result)
+}
+
+name <- "chromosight_score_complex_reg_EpiDMSOvsDMSO_diffCutoff0.2"
+loop.up <- fread(here(commonLoopDir, paste0(name, "_UP.bedpe")))
+loop.no <- fread(here(commonLoopDir, paste0(name, "_NO.bedpe")))
+loop.upno <- bind_rows(loop.up, loop.no)
+loop.down <- fread(here(commonLoopDir, paste0(name, "_DOWN.bedpe")))
+
+### Dylan
+# Seeding
+temp <- getSEOverlapFisher(loop.down, loop.upno, peak.Dylan.SE)
+result.tb <- tibble(loopType = "EpiLC_DOWN_vs_UPNO",
+                    target = "ESC SE",
+                    pvalue = temp$p.value,
+                    oddsRatio = temp$estimate)
+library(circlize)
+data <- result.tb %>%
+  dplyr::mutate(pvalue = pmax(0.0001, pvalue))
+
+data$loopType <- factor(data$loopType, levels = c("EpiLC_DOWN_vs_UPNO"))
+data$target <- factor(data$target, levels = c("ESC SE"))
+
+p <- ggplot(data, aes(x = loopType, y = target, size = -log10(pvalue), fill = oddsRatio)) +
+  geom_point(shape = 21,        # Ensures a point with an outline
+             stroke = 1*ptToMM/2      # Line width for the border
+  ) + theme_bw() + 
+  scale_size_continuous(range = c(1, 3)) +
+  scale_fill_gradientn(colors = c("#4852A0", "white", "#CB333A"),  # Define gradient colors
+                       values = scales::rescale(c(0.5, 1, 1.5)), limits = c(0.5, 1.5), 
+                       oob = scales::squish, # Define gradient colors
+                       guide = guide_colorbar(
+                         barwidth = 1.5/5.08,  # Adjust width of the color bar
+                         barheight = 10/5.08   # Adjust height of the color bar
+                       )
+  ) +
+  labs(x = NULL, y = NULL)  +
+  theme(
+    axis.title = element_blank(),
+    axis.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text.x = element_text(
+      angle = 45,      # Rotate x-axis labels 45 degrees
+      hjust = 1,       # Adjust horizontal justification
+      vjust = 1,        # Adjust vertical justification
+      color = "#000000"
+    ),
+    axis.text.y = element_text(size = fontSizeS, family = fontType),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+    legend.text = element_text(family = fontType, size = fontSizeS),
+    legend.title = element_text(family = fontType, size = fontSizeS),
+    )
+
+fileName <- here(figDir, "dotplot_SE_enrichment_dotplot_EpiLCvsESC")
+width <- panelSize(1.8)*mmToInch
+height <- panelSize(1.1)*mmToInch
+svglite(paste0(fileName, ".svg"),  height = height, width = width)
+print(p)
+dev.off()
+```
+

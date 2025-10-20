@@ -390,6 +390,7 @@ draw_4c_dTAGvsDMSO ("EpiLC", "Fosl2", "chr5",
 ```
 
 ### v4C
+#### dTAG vs DMSO
 ```{r}
 figDir <- here("../figure/4c_v4c")
 dir.create(figDir, recursive = TRUE, showWarnings = FALSE)
@@ -740,6 +741,333 @@ draw_v4c_dTAGvsDMSO ("EpiLC", "ENSMUSG00000031530.Dusp4", "chr8", 10,
                     ymax = 1000, diffYmax = 500,
                     color_epi_dark, color_epi_light, width = 2.7)
 
+
+
+
+```
+#### EpiLC vs ESC
+```{r}
+figDir <- here("../figure/4c_v4c")
+dir.create(figDir, recursive = TRUE, showWarnings = FALSE)
+refDir <- here("../reference")
+dir4C <- here("../data", "4C" )
+dirv4C <- here("../data", "v4C", "bedgraph_parallel_chrLocalNorm")
+loopDir <- here("../data/loop_analysis")
+
+
+draw_v4c_EpiLCvsESC <- function(celltype, vp, chr, res, xmin, xmax, ymax, diffYmax, color1, color2, width = 1.8){
+  ################################################################################
+  # IMPORTING TRACKS
+  ################################################################################
+  
+  # Import v4C bedgraph
+  tb_4c_ESC <- fread(here(dirv4C, paste0("v4C_", vp, "__", "G1DMSO_pooled", "__", res, "kb_localNorm.bedGraph" )))
+  colnames(tb_4c_ESC) <- c("chrom", "start", "end", "score")
+  bg_4c_ESC <- makeGRangesFromDataFrame(tb_4c_ESC, keep.extra.columns = TRUE)
+  keep <- countOverlaps(bg_4c_ESC) == 1
+  bg_4c_ESC <- bg_4c_ESC[keep]
+  
+  tb_4c_EpiLC <- fread(here(dirv4C, paste0("v4C_", vp, "__", "EpiG1DMSO_pooled", "__", res, "kb_localNorm.bedGraph" )))
+  colnames(tb_4c_EpiLC) <- c("chrom", "start", "end", "score")
+  bg_4c_EpiLC <- makeGRangesFromDataFrame(tb_4c_EpiLC, keep.extra.columns = TRUE)
+  keep <- countOverlaps(bg_4c_EpiLC) == 1
+  bg_4c_EpiLC <- bg_4c_EpiLC[keep]
+  
+  # Make differential bedgraph
+  tb_4c_diff_EpiLCvsESC <- tb_4c_ESC %>% left_join(tb_4c_EpiLC, by = c("chrom", "start", "end")) %>%
+    dplyr::mutate(score = score.y - score.x) %>%
+    dplyr::select(chrom, start, end, score)
+  bg_4c_diff_EpiLCvsESC <- makeGRangesFromDataFrame(tb_4c_diff_EpiLCvsESC, keep.extra.columns = TRUE)
+  keep <- countOverlaps(bg_4c_diff_EpiLCvsESC) == 1
+  bg_4c_diff_EpiLCvsESC <- bg_4c_diff_EpiLCvsESC[keep]
+  
+  
+  
+  
+  # CHIP TRACKS
+  bw_H3K4me3_ESC <- here(refDir, "ChIP", "H3K4me3", "H3K4me3_ESC_avg_depthNorm.bw")
+  bw_H3K27ac_ESC <- here(refDir, "ChIP", "H3K27ac", "H3K27ac_ESC_avg_depthNorm.bw")
+  bw_H3K4me3_EpiLC <- here(refDir, "ChIP", "H3K4me3", "H3K4me3_EpiLC_avg_depthNorm.bw")
+  bw_H3K27ac_EpiLC <- here(refDir, "ChIP", "H3K27ac", "H3K27ac_EpiLC_avg_depthNorm.bw")
+  bw_RAD21_ESC <- here(refDir, "ChIP", "RAD21-HA", "RAD21_ESC-DMSO_avg_spikeNorm_inputNorm.bw") 
+  bw_RAD21_EpiLC <- here(refDir, "ChIP", "RAD21-HA", "RAD21_EpiLC_avg_spikeNorm_inputNorm.bw") 
+  
+  ################################################################################
+  # DEFINING RANGES
+  ################################################################################
+  # Y ranges for virtual 4C
+  ymin <- 0
+  
+  # X ranges 
+  chr <-chr 
+  
+  # Y ranges for ChIP
+  region_gr <- GRanges(seqnames = chr,
+                       ranges = IRanges(start = xmin,
+                                        end = xmax))
+  ## H3K4me3 range
+  bw_subset1 <- rtracklayer::import.bw(bw_H3K4me3_ESC, which = region_gr)
+  max_score <- max(bw_subset1$score)
+  bw_subset1 <- rtracklayer::import.bw(bw_H3K4me3_EpiLC, which = region_gr)
+  max_score2 <- max(bw_subset1$score)
+  common_range_H3K4me3 <- c(0, max(ceiling(max_score / 0.1) * 0.1, ceiling(max_score2 / 0.1) * 0.1))
+  
+  ## H3K27ac range
+  bw_subset1 <- rtracklayer::import.bw(bw_H3K27ac_ESC, which = region_gr)
+  max_score <- max(bw_subset1$score)
+  bw_subset1 <- rtracklayer::import.bw(bw_H3K27ac_EpiLC, which = region_gr)
+  max_score2 <- max(bw_subset1$score)
+  common_range_H3K27ac <- c(0, max(ceiling(max_score / 0.1) * 0.1, ceiling(max_score2 / 0.1) * 0.1))
+  
+  
+  ## RAD21 range
+  bw_subset1 <- rtracklayer::import.bw(bw_RAD21_ESC, which = region_gr)
+  max_score <- max(bw_subset1$score)
+  bw_subset1 <- rtracklayer::import.bw(bw_RAD21_EpiLC, which = region_gr)
+  max_score2 <- max(bw_subset1$score)
+  common_range_RAD21 <- c(0, max(ceiling(max_score / 0.1) * 0.1, ceiling(max_score2 / 0.1) * 0.1))
+  
+  ## Defining the genomic region to plot
+  plot_region <- pgParams(
+    chrom = chr,
+    chromstart = xmin,
+    chromend = xmax,
+    assembly = "mm10"
+  )
+  # Plotting parameters
+  xPosition <- 0.25
+  yPosition <- 0.4
+  width <- width
+  height.v4C <- 0.3
+  height.v4CDiff <- 0.15
+  height.chip <- 0.08
+  height.chipPeak <- 0.05
+  yPositionShift <- "0.15b"
+  yPositionShiftSmall <- "0.05b"
+  yPositionShiftMini <- "0.025b"
+  
+  yPositionShiftNum <- 0.15
+  yPositionShiftSmallNum <- 0.05
+  yPositionShiftMiniNum <- 0.025
+  textShift <- 0.05
+  fontfamily <- "Helvetica"
+  
+  ################################################################################
+  # Plot 1: Drawing EpiLC vs ESC
+  ################################################################################
+  pdf(here(figDir, paste0(vp, "_", res, "_", "EpiLCvsESC_", xmin, "_", xmax, ".pdf")), width = 4, height = 8)
+  pageCreate(width = 4, height = 8, default.units = "inches", showGuides = FALSE)
+  # --- 4C G1 ESC---
+  plotText(label = paste0("G1.", "ESC"), x = xPosition + textShift, y = yPosition, just = "left",
+           fontsize = 6, fontfamily = fontfamily)
+  # Plot the signal track
+  reg4C.DMSO <- plotSignal(
+    data = bg_4c_ESC,
+    params = plot_region,
+    range = c(ymin, ymax),
+    x = xPosition, y = yPosition, width = width, height = height.v4C,
+    just = c("left", "top"),
+    linecolor = color1, lwd = 0.25*mmToLinePlotgarden,
+    fill = color1
+  )
+  annoYaxis(
+    plot = reg4C.DMSO,
+    axisLine = TRUE, lineend = "square",
+    fontsize = 4, fontfamily = fontfamily
+  )
+  
+  # --- 4C G1 EpiLC---
+  # The y-coordinate "0.2b" places this plot 0.2 inches below the previous one
+  plotText(label = paste0("G1.", "EpiLC"), x = xPosition + textShift, y = yPositionShiftSmall, just = "left",
+           fontsize = 6, fontfamily = fontfamily)
+  reg4C.dTAG <- plotSignal(
+    data = bg_4c_EpiLC,
+    params = plot_region,
+    range = c(ymin, ymax),
+    x = xPosition, y = yPositionShiftSmall, width = width, height = height.v4C,
+    just = c("left", "top"),
+    linecolor = color2, lwd = 0.25*mmToLinePlotgarden,
+    fill = color2
+  )
+  annoYaxis(
+    plot = reg4C.dTAG,
+    axisLine = TRUE, lineend = "square",
+    fontsize = 4, fontfamily = fontfamily
+  )
+  
+  # --- v4C G1 Differential --
+  positive_scores_gr <- bg_4c_diff_EpiLCvsESC[bg_4c_diff_EpiLCvsESC$score > 0]
+  negative_scores_gr <- bg_4c_diff_EpiLCvsESC[bg_4c_diff_EpiLCvsESC$score < 0]
+  
+  plotText(label = "Diff (EpiLC - ESC)", x = xPosition + textShift, y = yPositionShiftSmall, just = "left",
+           fontsize = 6, fontfamily = fontfamily)
+  reg4C.diff.dTAGvsDMSO <- plotSignal(
+    data = negative_scores_gr,
+    params = plot_region,
+    range = c(-diffYmax, diffYmax),
+    x = xPosition, y = yPositionShiftSmall, width = width, height = height.v4CDiff,
+    just = c("left", "top"),
+    linecolor = color1, lwd = 0.25*mmToLinePlotgarden, baseline = FALSE,
+    fill = color1
+  )
+  plotSignal(
+    data = positive_scores_gr,
+    params = plot_region,
+    range = c(-diffYmax, diffYmax),
+    x = xPosition, y = yPosition + (height.v4C+yPositionShiftSmallNum)*2, 
+    width = width, height = height.v4CDiff,
+    just = c("left", "top"),
+    linecolor = color2, lwd = 0.25*mmToLinePlotgarden, baseline = FALSE,
+    fill = color2
+  )
+  annoYaxis(
+    plot = reg4C.diff.dTAGvsDMSO,
+    axisLine = TRUE, lineend = "square",
+    fontsize = 4, fontfamily = fontfamily
+  )
+
+  # --- ChIP H3K4me3 ESC ---
+  plotText(label = "H3K4me3 ESC", x = xPosition + textShift, y = yPositionShiftSmall, just = "left",
+           fontsize = 6, fontfamily = fontfamily)
+  chip.h3k4me3.ESC <- plotSignal(
+    data = bw_H3K4me3_ESC,
+    params = plot_region, range = common_range_H3K4me3,
+    x = xPosition, y = yPositionShiftSmall, width = width, height = height.chip,
+    just = c("left", "top"),
+    linecolor = strong_red,
+    fill = strong_red
+  )
+  annoYaxis(
+    plot = chip.h3k4me3.ESC,
+    axisLine = TRUE, lineend = "square",
+    fontsize = 4, fontfamily = fontfamily
+  )
+    # --- ChIP H3K4me3 EpiLC ---
+  plotText(label = "H3K4me3 EpiLC", x = xPosition + textShift, y = yPositionShiftSmall, just = "left",
+           fontsize = 6, fontfamily = fontfamily)
+  chip.h3k4me3.EpiLC <- plotSignal(
+    data = bw_H3K4me3_EpiLC,
+    params = plot_region, range = common_range_H3K4me3,
+    x = xPosition, y = yPositionShiftSmall, width = width, height = height.chip,
+    just = c("left", "top"),
+    linecolor = strong_red,
+    fill = strong_red
+  )
+  annoYaxis(
+    plot = chip.h3k4me3.EpiLC,
+    axisLine = TRUE, lineend = "square",
+    fontsize = 4, fontfamily = fontfamily
+  )
+  # --- ChIP H3K27ac ESC ---
+  plotText(label = "H3K27ac ESC", x = xPosition + textShift, y = yPositionShiftSmall, just = "left",
+           fontsize = 6, fontfamily = fontfamily)
+  chip.H3K27ac.ESC <- plotSignal(
+    data = bw_H3K27ac_ESC,
+    params = plot_region, range = common_range_H3K27ac,
+    x = xPosition, y = yPositionShiftSmall, width = width, height = height.chip,
+    just = c("left", "top"),
+    linecolor = strong_blue,
+    fill = strong_blue
+  )
+  annoYaxis(
+    plot = chip.H3K27ac.ESC,
+    axisLine = TRUE, lineend = "square",
+    fontsize = 4, fontfamily = fontfamily
+  )
+    # --- ChIP H3K27ac EpiLC ---
+  plotText(label = "H3K27ac EpiLC", x = xPosition + textShift, y = yPositionShiftSmall, just = "left",
+           fontsize = 6, fontfamily = fontfamily)
+  chip.H3K27ac.EpiLC <- plotSignal(
+    data = bw_H3K27ac_EpiLC,
+    params = plot_region, range = common_range_H3K27ac,
+    x = xPosition, y = yPositionShiftSmall, width = width, height = height.chip,
+    just = c("left", "top"),
+    linecolor = strong_blue,
+    fill = strong_blue
+  )
+  annoYaxis(
+    plot = chip.H3K27ac.EpiLC,
+    axisLine = TRUE, lineend = "square",
+    fontsize = 4, fontfamily = fontfamily
+  )
+  # --- ChIP RAD21 ESC ---
+  plotText(label = "RAD21", x = xPosition + textShift, y = yPositionShiftSmall, just = "left",
+           fontsize = 6, fontfamily = fontfamily)
+  chip.RAD21.ESC <- plotSignal(
+    data = bw_RAD21_ESC,
+    params = plot_region, range = common_range_RAD21,
+    x = xPosition, y = yPositionShiftSmall, width = width, height = height.chip,
+    just = c("left", "top"),
+    linecolor = "grey30",
+    fill = "grey30"
+  )
+  annoYaxis(
+    plot = chip.RAD21.ESC,
+    axisLine = TRUE, lineend = "square",
+    fontsize = 4, fontfamily = fontfamily
+  )
+  # --- ChIP RAD21 EpiLC ---
+  plotText(label = "RAD21", x = xPosition + textShift, y = yPositionShiftSmall, just = "left",
+           fontsize = 6, fontfamily = fontfamily)
+  chip.RAD21.EpiLC <- plotSignal(
+    data = bw_RAD21_EpiLC,
+    params = plot_region, range = common_range_RAD21,
+    x = xPosition, y = yPositionShiftSmall, width = width, height = height.chip,
+    just = c("left", "top"),
+    linecolor = "grey30",
+    fill = "grey30"
+  )
+  annoYaxis(
+    plot = chip.RAD21.EpiLC,
+    axisLine = TRUE, lineend = "square",
+    fontsize = 4, fontfamily = fontfamily
+  )
+
+  # --- genome axis ---
+  plotGenes(
+    params = plot_region,
+    x = xPosition, y = yPositionShiftSmall, width = width, height = height.v4C/2,
+    just = c("left", "top"),
+    fontsize = 4, fontcolor = c("black", "black"), fill = c("black", "black")
+    
+  )
+  plotGenomeLabel(
+    params = plot_region,
+    x = xPosition, y = yPositionShiftSmall, length = width,
+    fontsize = 4, fontfamily = fontfamily
+  )
+  dev.off()
+}
+
+draw_v4c_EpiLCvsESC ("", "ENSMUSG00000024427.Spry4", "chr18",  10,
+                    xmin = 38382000, xmax = 38900000, 
+                    ymax = 1000, diffYmax = 600,
+                    color_esc_dark, color_epi_dark, width = 2)
+
+draw_v4c_EpiLCvsESC ("", "ENSMUSG00000031530.Dusp4", "chr8", 10,
+                    xmin = 34057161, xmax = 34919580, 
+                    ymax = 1000, diffYmax = 500,
+                    color_esc_dark, color_epi_dark, width = 2)
+
+draw_v4c_EpiLCvsESC ("", "ENSMUSG00000061524.Zic2", "chr14", 10,
+                    xmin = 121171682, xmax = 122809628, 
+                    ymax = 1000, diffYmax = 500,
+                    color_esc_dark, color_epi_dark, width = 2)
+
+draw_v4c_EpiLCvsESC ("", "ENSMUSG00000006445.Epha2", "chr4",  10,
+                    xmin = 140900000, xmax = 141800000, 
+                    ymax = 700, diffYmax = 350,
+                    color_esc_dark, color_epi_dark, width = 2)
+
+draw_v4c_EpiLCvsESC ("", "ENSMUSG00000022346.Myc", "chr15", 10,
+                    xmin = 61850000, xmax = 62400000, 
+                    ymax = 1500, diffYmax = 500,
+                    color_esc_dark, color_epi_dark, width = 2)
+
+draw_v4c_EpiLCvsESC ("", "ENSMUSG00000017724.Etv4", "chr11", 10,
+                    xmin = 101500000, xmax = 102200000, 
+                    ymax = 1200, diffYmax = 500,
+                    color_esc_dark, color_epi_dark, width = 2)
 
 
 

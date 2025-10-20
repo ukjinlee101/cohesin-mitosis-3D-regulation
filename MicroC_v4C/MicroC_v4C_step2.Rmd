@@ -241,15 +241,3 @@ for(vp in vpList){
 ```
 
 
-# Using cooltoos for v4C
-```{r}
-# BiocManager::install("HiContacts")
-library(HiContacts)
-
-coolDir <- here("..", "data", "cool_norm_pooled")
-
-cool.G1DMSO <- import(CoolFile(here(coolDir, "G1DMSO_pooled_10000bp_KR.cool")))
-
-
-```
-
