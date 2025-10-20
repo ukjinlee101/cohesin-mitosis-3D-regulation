@@ -80,4 +80,14 @@ for(ens in temp$ensembl){
   
 }
 
+temp2 <- (fread(here(dataDir, "RNA_diff", "diff_G1.dTAG_G1.Epi.dTAG_vs_G1.Epi.DMSO.tsv"))) %>%
+  dplyr::filter(external_gene_name %in% c("Dusp6", "Egr1", "Egr3", "Smad7"))
+geneList <- temp2$ensembl_gene_id
+for(ens in temp$ensembl){
+  temp2 <- temp %>% dplyr::filter(ensembl == ens)
+  out <- temp2 %>% dplyr::select(chr, TSS, TSSend)
+  gene <- temp2$gene
+  fileName <- paste("vp", ens, gene, "bed", sep = ".") 
+  fwrite(out, here(outDir, fileName), sep = "\t", col.names = FALSE)
+}
 ```
