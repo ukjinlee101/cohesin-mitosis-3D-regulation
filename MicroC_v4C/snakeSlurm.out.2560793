@@ -1,0 +1,8 @@
+SLURM_SUBMIT_DIR = /athena/cayuga_0007/scratch/ukl4001/MtoG1_analysis_code/MicroC_v4C
+PWD at runtime    = /athena/cayuga_0007/scratch/ukl4001/MtoG1_analysis_code/MicroC_v4C
+Using Snakefile: MicroC_v4C_step1_parallel.smk
+### Following list of samples will be processed...
+['ENSMUSG00000038418.Egr1', 'ENSMUSG00000025880.Smad7', 'ENSMUSG00000019960.Dusp6', 'ENSMUSG00000033730.Egr3']
+['G1DMSO_pooled', 'G1dTAG_pooled', 'G1A485_pooled', 'EpiG1DMSO_pooled', 'EpiG1dTAG_pooled', 'GSE178982_AsyncUT_pooled', 'GSE178982_AsyncAID_pooled']
+['5', '10']
+JOB FINISHED

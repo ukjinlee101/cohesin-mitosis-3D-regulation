@@ -1,0 +1,38 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 4
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954
+Select jobs to execute...
+
+[Mon Oct 20 16:44:47 2025]
+rule allInfo:
+    input: /athena/apostoloulab/scratch/ukl4001/data/v4C/vpInfo/vp.ENSMUSG00000038418.Egr1.bed, /athena/apostoloulab/scratch/ukl4001/temp/region1.ENSMUSG00000038418.Egr1__10kb, /athena/apostoloulab/scratch/ukl4001/temp/step1.ENSMUSG00000038418.Egr1__10kb
+    output: /athena/apostoloulab/scratch/ukl4001/temp/pairs.ENSMUSG00000038418.Egr1__EpiG1dTAG_pooled__10kb, /athena/apostoloulab/scratch/ukl4001/temp/left.ENSMUSG00000038418.Egr1__EpiG1dTAG_pooled__10kb, /athena/apostoloulab/scratch/ukl4001/temp/right.ENSMUSG00000038418.Egr1__EpiG1dTAG_pooled__10kb, /athena/apostoloulab/scratch/ukl4001/temp/singlereads.ENSMUSG00000038418.Egr1__EpiG1dTAG_pooled__10kb, /athena/apostoloulab/scratch/ukl4001/temp/enrichment.ENSMUSG00000038418.Egr1__EpiG1dTAG_pooled__10kb, /athena/apostoloulab/scratch/ukl4001/data/v4C/allInfo_parallel_chr/allinfo.ENSMUSG00000038418.Egr1__EpiG1dTAG_pooled__10kb
+    jobid: 0
+    reason: Forced execution
+    wildcards: gene=ENSMUSG00000038418.Egr1, exp=EpiG1dTAG_pooled, res=10
+    threads: 4
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=/athena/cayuga_0007/scratch/ukl4001/temp
+
+
+		firstline=$(head -n 1 /athena/apostoloulab/scratch/ukl4001/data/v4C/vpInfo/vp.ENSMUSG00000038418.Egr1.bed)
+		chr=$(echo ${firstline} | awk '{print $1}')
+
+		pairToBed -a /athena/apostoloulab/scratch/ukl4001/temp/mappedPairChr/EpiG1dTAG_pooled.${chr}.bedpe -b /athena/apostoloulab/scratch/ukl4001/temp/region1.ENSMUSG00000038418.Egr1__10kb -type "either" > /athena/apostoloulab/scratch/ukl4001/temp/pairs.ENSMUSG00000038418.Egr1__EpiG1dTAG_pooled__10kb
+
+		cut -f1,2,3 /athena/apostoloulab/scratch/ukl4001/temp/pairs.ENSMUSG00000038418.Egr1__EpiG1dTAG_pooled__10kb > /athena/apostoloulab/scratch/ukl4001/temp/left.ENSMUSG00000038418.Egr1__EpiG1dTAG_pooled__10kb
+		cut -f4,5,6 /athena/apostoloulab/scratch/ukl4001/temp/pairs.ENSMUSG00000038418.Egr1__EpiG1dTAG_pooled__10kb > /athena/apostoloulab/scratch/ukl4001/temp/right.ENSMUSG00000038418.Egr1__EpiG1dTAG_pooled__10kb
+		cat /athena/apostoloulab/scratch/ukl4001/temp/left.ENSMUSG00000038418.Egr1__EpiG1dTAG_pooled__10kb /athena/apostoloulab/scratch/ukl4001/temp/right.ENSMUSG00000038418.Egr1__EpiG1dTAG_pooled__10kb > /athena/apostoloulab/scratch/ukl4001/temp/singlereads.ENSMUSG00000038418.Egr1__EpiG1dTAG_pooled__10kb
+		
+		#calculate read coverage for all bins around the region of interest
+		intersectBed -a /athena/apostoloulab/scratch/ukl4001/temp/step1.ENSMUSG00000038418.Egr1__10kb -b /athena/apostoloulab/scratch/ukl4001/temp/singlereads.ENSMUSG00000038418.Egr1__EpiG1dTAG_pooled__10kb -c > /athena/apostoloulab/scratch/ukl4001/temp/enrichment.ENSMUSG00000038418.Egr1__EpiG1dTAG_pooled__10kb
+		
+		# add location of region of interest - We will delete this from downstream analysis for plots - it is useful to keep it as a separate column.
+		intersectBed -a /athena/apostoloulab/scratch/ukl4001/temp/enrichment.ENSMUSG00000038418.Egr1__EpiG1dTAG_pooled__10kb -b /athena/apostoloulab/scratch/ukl4001/temp/region1.ENSMUSG00000038418.Egr1__10kb -c > /athena/apostoloulab/scratch/ukl4001/data/v4C/allInfo_parallel_chr/allinfo.ENSMUSG00000038418.Egr1__EpiG1dTAG_pooled__10kb
+		
+		
+Activating conda environment: bioinfo
+[Mon Oct 20 16:45:20 2025]
+Finished job 0.
+1 of 1 steps (100%) done

@@ -1,0 +1,66 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 4
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954
+Select jobs to execute...
+
+[Mon Oct 20 16:44:47 2025]
+rule allInfo:
+    input: /athena/apostoloulab/scratch/ukl4001/data/v4C/vpInfo/vp.ENSMUSG00000033730.Egr3.bed, /athena/apostoloulab/scratch/ukl4001/temp/region1.ENSMUSG00000033730.Egr3__10kb, /athena/apostoloulab/scratch/ukl4001/temp/step1.ENSMUSG00000033730.Egr3__10kb
+    output: /athena/apostoloulab/scratch/ukl4001/temp/pairs.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb, /athena/apostoloulab/scratch/ukl4001/temp/left.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb, /athena/apostoloulab/scratch/ukl4001/temp/right.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb, /athena/apostoloulab/scratch/ukl4001/temp/singlereads.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb, /athena/apostoloulab/scratch/ukl4001/temp/enrichment.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb, /athena/apostoloulab/scratch/ukl4001/data/v4C/allInfo_parallel_chr/allinfo.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb
+    jobid: 0
+    reason: Forced execution
+    wildcards: gene=ENSMUSG00000033730.Egr3, exp=GSE178982_AsyncAID_pooled, res=10
+    threads: 4
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=/athena/cayuga_0007/scratch/ukl4001/temp
+
+
+		firstline=$(head -n 1 /athena/apostoloulab/scratch/ukl4001/data/v4C/vpInfo/vp.ENSMUSG00000033730.Egr3.bed)
+		chr=$(echo ${firstline} | awk '{print $1}')
+
+		pairToBed -a /athena/apostoloulab/scratch/ukl4001/temp/mappedPairChr/GSE178982_AsyncAID_pooled.${chr}.bedpe -b /athena/apostoloulab/scratch/ukl4001/temp/region1.ENSMUSG00000033730.Egr3__10kb -type "either" > /athena/apostoloulab/scratch/ukl4001/temp/pairs.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb
+
+		cut -f1,2,3 /athena/apostoloulab/scratch/ukl4001/temp/pairs.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb > /athena/apostoloulab/scratch/ukl4001/temp/left.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb
+		cut -f4,5,6 /athena/apostoloulab/scratch/ukl4001/temp/pairs.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb > /athena/apostoloulab/scratch/ukl4001/temp/right.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb
+		cat /athena/apostoloulab/scratch/ukl4001/temp/left.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb /athena/apostoloulab/scratch/ukl4001/temp/right.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb > /athena/apostoloulab/scratch/ukl4001/temp/singlereads.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb
+		
+		#calculate read coverage for all bins around the region of interest
+		intersectBed -a /athena/apostoloulab/scratch/ukl4001/temp/step1.ENSMUSG00000033730.Egr3__10kb -b /athena/apostoloulab/scratch/ukl4001/temp/singlereads.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb -c > /athena/apostoloulab/scratch/ukl4001/temp/enrichment.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb
+		
+		# add location of region of interest - We will delete this from downstream analysis for plots - it is useful to keep it as a separate column.
+		intersectBed -a /athena/apostoloulab/scratch/ukl4001/temp/enrichment.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb -b /athena/apostoloulab/scratch/ukl4001/temp/region1.ENSMUSG00000033730.Egr3__10kb -c > /athena/apostoloulab/scratch/ukl4001/data/v4C/allInfo_parallel_chr/allinfo.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb
+		
+		
+Activating conda environment: bioinfo
+Error: The requested BEDPE file (/athena/apostoloulab/scratch/ukl4001/temp/mappedPairChr/GSE178982_AsyncAID_pooled.chr14.bedpe) could not be opened. Error message: (No such file or directory). Exiting!
+[Mon Oct 20 16:44:52 2025]
+Error in rule allInfo:
+    jobid: 0
+    input: /athena/apostoloulab/scratch/ukl4001/data/v4C/vpInfo/vp.ENSMUSG00000033730.Egr3.bed, /athena/apostoloulab/scratch/ukl4001/temp/region1.ENSMUSG00000033730.Egr3__10kb, /athena/apostoloulab/scratch/ukl4001/temp/step1.ENSMUSG00000033730.Egr3__10kb
+    output: /athena/apostoloulab/scratch/ukl4001/temp/pairs.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb, /athena/apostoloulab/scratch/ukl4001/temp/left.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb, /athena/apostoloulab/scratch/ukl4001/temp/right.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb, /athena/apostoloulab/scratch/ukl4001/temp/singlereads.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb, /athena/apostoloulab/scratch/ukl4001/temp/enrichment.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb, /athena/apostoloulab/scratch/ukl4001/data/v4C/allInfo_parallel_chr/allinfo.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb
+    conda-env: bioinfo
+    shell:
+        
+		firstline=$(head -n 1 /athena/apostoloulab/scratch/ukl4001/data/v4C/vpInfo/vp.ENSMUSG00000033730.Egr3.bed)
+		chr=$(echo ${firstline} | awk '{print $1}')
+
+		pairToBed -a /athena/apostoloulab/scratch/ukl4001/temp/mappedPairChr/GSE178982_AsyncAID_pooled.${chr}.bedpe -b /athena/apostoloulab/scratch/ukl4001/temp/region1.ENSMUSG00000033730.Egr3__10kb -type "either" > /athena/apostoloulab/scratch/ukl4001/temp/pairs.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb
+
+		cut -f1,2,3 /athena/apostoloulab/scratch/ukl4001/temp/pairs.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb > /athena/apostoloulab/scratch/ukl4001/temp/left.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb
+		cut -f4,5,6 /athena/apostoloulab/scratch/ukl4001/temp/pairs.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb > /athena/apostoloulab/scratch/ukl4001/temp/right.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb
+		cat /athena/apostoloulab/scratch/ukl4001/temp/left.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb /athena/apostoloulab/scratch/ukl4001/temp/right.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb > /athena/apostoloulab/scratch/ukl4001/temp/singlereads.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb
+		
+		#calculate read coverage for all bins around the region of interest
+		intersectBed -a /athena/apostoloulab/scratch/ukl4001/temp/step1.ENSMUSG00000033730.Egr3__10kb -b /athena/apostoloulab/scratch/ukl4001/temp/singlereads.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb -c > /athena/apostoloulab/scratch/ukl4001/temp/enrichment.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb
+		
+		# add location of region of interest - We will delete this from downstream analysis for plots - it is useful to keep it as a separate column.
+		intersectBed -a /athena/apostoloulab/scratch/ukl4001/temp/enrichment.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb -b /athena/apostoloulab/scratch/ukl4001/temp/region1.ENSMUSG00000033730.Egr3__10kb -c > /athena/apostoloulab/scratch/ukl4001/data/v4C/allInfo_parallel_chr/allinfo.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb
+		
+		
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Removing output files of failed job allInfo since they might be corrupted:
+/athena/apostoloulab/scratch/ukl4001/temp/pairs.ENSMUSG00000033730.Egr3__GSE178982_AsyncAID_pooled__10kb
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
