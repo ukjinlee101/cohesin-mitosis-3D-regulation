@@ -5642,7 +5642,7 @@ data <- gene.TSS.tb %>% left_join(tad %>% dplyr::select(tadID, tadSize), by = c(
 ```
 #### [FIG] TAD distance/size/insulation score
 ```{r}
-group1 <- fread(here(dataDir, "loop_analysis",
+ group1 <- fread(here(dataDir, "loop_analysis",
                      "geneList_chromosight_dTAG_vs_DMSO_p-n_complex_Group1.tsv"))$gene
 group2 <- fread(here(dataDir, "loop_analysis",
                      "geneList_chromosight_dTAG_vs_DMSO_p-n_complex_Group2.tsv"))$gene
@@ -6249,6 +6249,173 @@ print(p)
 dev.off()
 svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
 print(p)
+dev.off()
+
+
+
+
+```
+##### Plot TAD CDF per replicate
+```{r}
+diff.RNA.all <- fread(here(diffDir, "diff_G1.dTAG_G1.2i.dTAG_vs_G1.2i.DMSO.tsv")) %>%
+  dplyr::mutate(baseline = rowMeans(.[, 11:13], na.rm = TRUE)) %>%
+  dplyr::mutate(naiveLog2FC_rep1 =
+                  log2(((S04_R030_G1.2i.dTAG_rep1_batch2 +
+                           S05_R030_G1.2i.dTAG_rep1_batch3)/2 +1)/(baseline+1)),
+                naiveLog2FC_rep2 = log2(((S06_R030_G1.2i.dTAG_rep2_batch2 +
+                                            S07_R030_G1.2i.dTAG_rep2_batch3)/2 +1)/(baseline+1))) %>%
+  dplyr::select(ensembl_gene_id, naiveLog2FC_rep1, naiveLog2FC_rep2)
+
+
+temp <- left_join(dataToPlot, diff.RNA.all, by = c("ensembl" = "ensembl_gene_id")) %>% dplyr::filter(!is.na(naiveLog2FC_rep1), !is.na(naiveLog2FC_rep2), !is.na(tadID))
+
+
+dataToPlot2 <- temp %>% group_by(tadID) %>%
+  dplyr::summarise(absAvgLog2FC1 = abs(mean(naiveLog2FC_rep1)),
+                   absAvgLog2FC2 = abs(mean(naiveLog2FC_rep2)),
+                   tadGeneDensity = mean(tadGeneDensity))
+
+dataToPlot2$geneDensityGroup <- cut(
+  dataToPlot2$tadGeneDensity,
+  breaks = quantile(dataToPlot2$tadGeneDensity, probs = seq(0, 1, 0.2), na.rm = TRUE),
+  include.lowest = TRUE,
+  labels = paste0(seq(0, 80, 20), "-", seq(20, 100, 20), "%")
+)
+
+
+
+group1_data <- dataToPlot2$absAvgLog2FC1[dataToPlot2$geneDensityGroup == "0-20%"]
+group2_data <- dataToPlot2$absAvgLog2FC1[dataToPlot2$geneDensityGroup == "20-40%"]
+ks_result1 <- ks.test(group1_data, group2_data)
+
+group1_data <- dataToPlot2$absAvgLog2FC1[dataToPlot2$geneDensityGroup == "0-20%"]
+group2_data <- dataToPlot2$absAvgLog2FC1[dataToPlot2$geneDensityGroup == "40-60%"]
+ks_result2 <- ks.test(group1_data, group2_data)
+
+group1_data <- dataToPlot2$absAvgLog2FC1[dataToPlot2$geneDensityGroup == "0-20%"]
+group2_data <- dataToPlot2$absAvgLog2FC1[dataToPlot2$geneDensityGroup == "60-80%"]
+ks_result3 <- ks.test(group1_data, group2_data)
+
+group1_data <- dataToPlot2$absAvgLog2FC1[dataToPlot2$geneDensityGroup == "0-20%"]
+group2_data <- dataToPlot2$absAvgLog2FC1[dataToPlot2$geneDensityGroup == "80-100%"]
+ks_result4 <- ks.test(group1_data, group2_data)
+
+print(convPvalue(ks_result1$p.value))
+print(convPvalue(ks_result2$p.value))
+print(convPvalue(ks_result3$p.value))
+print(convPvalue(ks_result4$p.value))
+
+p1 <- ggplot(dataToPlot2, aes(x = absAvgLog2FC1, color = geneDensityGroup)) +
+  scale_color_manual(values = rev(c("#777777", "#8B7E65", "#A28452", "#C2884D", "#F28E2C"))) +
+  stat_ecdf(size = 0.4, linewidth = lineMedium * mmToLineUnit, lineend = "square" ) + # Use stat_ecdf to plot the empirical CDF
+  labs(
+    x = "Abs. log2(fold change)",
+    y = "Cumulative Probability"
+  ) + coord_cartesian(xlim = c(0, 1.5)) +
+  theme_classic() + # Clean theme
+  theme(
+    axis.title = element_text(
+      size = fontSizeM,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+    legend.position = "none",
+    legend.text = element_text(family = fontType, size = fontSizeS),
+    legend.title = element_text(family = fontType, size = fontSizeS),
+  ) + scale_y_continuous(labels = scales::number_format(accuracy = 0.1))
+
+
+fileName <- paste0("TAD_tadGroup_geneDensity_avgLog2FC_cdf_rep1")
+width <- 33*mmToInch
+height <-33*mmToInch
+png(here(figDir, paste0(fileName, ".png")), res = 600, unit = "in", height = height, width = width)
+print(p1)
+dev.off()
+svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
+print(p1)
+dev.off()
+
+group1_data <- dataToPlot2$absAvgLog2FC2[dataToPlot2$geneDensityGroup == "0-20%"]
+group2_data <- dataToPlot2$absAvgLog2FC2[dataToPlot2$geneDensityGroup == "20-40%"]
+ks_result1 <- ks.test(group1_data, group2_data)
+
+group1_data <- dataToPlot2$absAvgLog2FC2[dataToPlot2$geneDensityGroup == "0-20%"]
+group2_data <- dataToPlot2$absAvgLog2FC2[dataToPlot2$geneDensityGroup == "40-60%"]
+ks_result2 <- ks.test(group1_data, group2_data)
+
+group1_data <- dataToPlot2$absAvgLog2FC2[dataToPlot2$geneDensityGroup == "0-20%"]
+group2_data <- dataToPlot2$absAvgLog2FC2[dataToPlot2$geneDensityGroup == "60-80%"]
+ks_result3 <- ks.test(group1_data, group2_data)
+
+group1_data <- dataToPlot2$absAvgLog2FC2[dataToPlot2$geneDensityGroup == "0-20%"]
+group2_data <- dataToPlot2$absAvgLog2FC2[dataToPlot2$geneDensityGroup == "80-100%"]
+ks_result4 <- ks.test(group1_data, group2_data)
+
+print(convPvalue(ks_result1$p.value))
+print(convPvalue(ks_result2$p.value))
+print(convPvalue(ks_result3$p.value))
+print(convPvalue(ks_result4$p.value))
+
+p2 <- ggplot(dataToPlot2, aes(x = absAvgLog2FC2, color = geneDensityGroup)) +
+  scale_color_manual(values = rev(c("#777777", "#8B7E65", "#A28452", "#C2884D", "#F28E2C"))) +
+  stat_ecdf(size = 0.4, linewidth = lineMedium * mmToLineUnit, lineend = "square" ) + # Use stat_ecdf to plot the empirical CDF
+  labs(
+    x = "Abs. log2(fold change)",
+    y = "Cumulative Probability"
+  ) + coord_cartesian(xlim = c(0, 1.5)) +
+  theme_classic() + # Clean theme
+  theme(
+    axis.title = element_text(
+      size = fontSizeM,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+    legend.position = "none",
+    legend.text = element_text(family = fontType, size = fontSizeS),
+    legend.title = element_text(family = fontType, size = fontSizeS),
+  ) + scale_y_continuous(labels = scales::number_format(accuracy = 0.1))
+
+
+fileName <- paste0("TAD_tadGroup_geneDensity_avgLog2FC_cdf_rep2")
+width <- 33*mmToInch
+height <-33*mmToInch
+png(here(figDir, paste0(fileName, ".png")), res = 600, unit = "in", height = height, width = width)
+print(p2)
+dev.off()
+svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
+print(p2)
 dev.off()
 
 
@@ -7072,6 +7239,8 @@ temp <- geneAnnoData %>% dplyr::mutate(diff = score_dTAG - score_DMSO) %>%
 diff.RNA <- fread(here(diffDir, "diff_G1.dTAG_G1.2i.dTAG_vs_G1.2i.DMSO.tsv")) %>%
   dplyr::select(ensembl_gene_id, log2FoldChange, shrinked_log2FC, padj, external_gene_name)
 
+
+
 temp <- left_join(temp, diff.RNA, by = c("gene" = "ensembl_gene_id")) %>% 
   drop_na(shrinked_log2FC)
 
@@ -7239,6 +7408,159 @@ dev.off()
 
 ```
 
+###### log2FC per replicate
+```{r}
+diff.RNA.all <- fread(here(diffDir, "diff_G1.dTAG_G1.2i.dTAG_vs_G1.2i.DMSO.tsv")) %>%
+  dplyr::mutate(baseline = rowMeans(.[, 11:13], na.rm = TRUE)) %>%
+  dplyr::mutate(naiveLog2FC_rep1 =
+                  log2(((S04_R030_G1.2i.dTAG_rep1_batch2 +
+                           S05_R030_G1.2i.dTAG_rep1_batch3)/2 +1)/(baseline+1)),
+                naiveLog2FC_rep2 = log2(((S06_R030_G1.2i.dTAG_rep2_batch2 +
+                                            S07_R030_G1.2i.dTAG_rep2_batch3)/2 +1)/(baseline+1))) %>%
+  dplyr::select(ensembl_gene_id, naiveLog2FC_rep1, naiveLog2FC_rep2)
+
+
+temp <- left_join(temp, diff.RNA.all, by = c("gene" = "ensembl_gene_id"))
+temp <- temp %>% dplyr::mutate(absNaiveLog2FC_rep1 = abs(naiveLog2FC_rep1),
+                               absNaiveLog2FC_rep2 = abs(naiveLog2FC_rep2))
+
+ks_result1 <- ks.test(
+  temp %>% dplyr::filter(psNum == "psOver4") %>% pull(absNaiveLog2FC_rep1),
+  temp %>% dplyr::filter(psNum == "ps3") %>% pull(absNaiveLog2FC_rep1)
+)
+ks_result2 <- ks.test(
+  temp %>% dplyr::filter(psNum == "psOver4") %>% pull(absNaiveLog2FC_rep1),
+  temp %>% dplyr::filter(psNum == "ps2") %>% pull(absNaiveLog2FC_rep1)
+)
+ks_result3 <- ks.test(
+  temp %>% dplyr::filter(psNum == "psOver4") %>% pull(absNaiveLog2FC_rep1),
+  temp %>% dplyr::filter(psNum == "ps1") %>% pull(absNaiveLog2FC_rep1)
+)
+ks_result4 <- ks.test(
+  temp %>% dplyr::filter(psNum == "psOver4") %>% pull(absNaiveLog2FC_rep1),
+  temp %>% dplyr::filter(psNum == "ps0") %>% pull(absNaiveLog2FC_rep1)
+)
+print(convPvalue(ks_result1$p.value))
+print(convPvalue(ks_result2$p.value))
+print(convPvalue(ks_result3$p.value))
+print(convPvalue(ks_result4$p.value))
+p1 <- ggplot(temp, aes(x = absNaiveLog2FC_rep1, color = psNum)) +
+  scale_color_manual(values = (c("#777777", "#8B7E65", "#A28452", "#C2884D", "#F28E2C"))) +
+  stat_ecdf(size = 0.4, linewidth = lineMedium * mmToLineUnit, lineend = "square" ) + # Use stat_ecdf to plot the empirical CDF
+  labs(
+    x = "Abs. log2(fold change)",
+    y = "Cumulative Probability"
+  ) + coord_cartesian(xlim = c(0, 1.5)) +
+  theme_classic() + # Clean theme
+  theme(
+    axis.title = element_text(
+      size = fontSizeM,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+    legend.position = "none",
+    legend.text = element_text(family = fontType, size = fontSizeS),
+    legend.title = element_text(family = fontType, size = fontSizeS)
+  ) + scale_y_continuous(labels = scales::number_format(accuracy = 0.1))
+
+
+ks_result1 <- ks.test(
+  temp %>% dplyr::filter(psNum == "psOver4") %>% pull(absNaiveLog2FC_rep2),
+  temp %>% dplyr::filter(psNum == "ps3") %>% pull(absNaiveLog2FC_rep2)
+)
+ks_result2 <- ks.test(
+  temp %>% dplyr::filter(psNum == "psOver4") %>% pull(absNaiveLog2FC_rep2),
+  temp %>% dplyr::filter(psNum == "ps2") %>% pull(absNaiveLog2FC_rep2)
+)
+ks_result3 <- ks.test(
+  temp %>% dplyr::filter(psNum == "psOver4") %>% pull(absNaiveLog2FC_rep2),
+  temp %>% dplyr::filter(psNum == "ps1") %>% pull(absNaiveLog2FC_rep2)
+)
+ks_result4 <- ks.test(
+  temp %>% dplyr::filter(psNum == "psOver4") %>% pull(absNaiveLog2FC_rep2),
+  temp %>% dplyr::filter(psNum == "ps0") %>% pull(absNaiveLog2FC_rep2)
+)
+print(convPvalue(ks_result1$p.value))
+print(convPvalue(ks_result2$p.value))
+print(convPvalue(ks_result3$p.value))
+print(convPvalue(ks_result4$p.value))
+p2 <- ggplot(temp, aes(x = absNaiveLog2FC_rep2, color = psNum)) +
+  scale_color_manual(values = (c("#777777", "#8B7E65", "#A28452", "#C2884D", "#F28E2C"))) +
+  stat_ecdf(size = 0.4, linewidth = lineMedium * mmToLineUnit, lineend = "square" ) + # Use stat_ecdf to plot the empirical CDF
+  labs(
+    x = "Abs. log2(fold change)",
+    y = "Cumulative Probability"
+  ) + coord_cartesian(xlim = c(0, 1.5)) +
+  theme_classic() + # Clean theme
+  theme(
+    axis.title = element_text(
+      size = fontSizeM,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+    legend.position = "none",
+    legend.text = element_text(family = fontType, size = fontSizeS),
+    legend.title = element_text(family = fontType, size = fontSizeS)
+  ) + scale_y_continuous(labels = scales::number_format(accuracy = 0.1))
+
+
+
+fileName <- paste0("psGroup_abslog2FC_dTAGvsDMSO_rep1")
+width <- 33*mmToInch
+height <-33*mmToInch
+png(here(figDir, paste0(fileName, ".png")), res = 600, unit = "in", height = height, width = width)
+print(p1)
+dev.off()
+svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
+print(p1)
+dev.off()
+
+fileName <- paste0("psGroup_abslog2FC_dTAGvsDMSO_rep2")
+width <- 33*mmToInch
+height <-33*mmToInch
+png(here(figDir, paste0(fileName, ".png")), res = 600, unit = "in", height = height, width = width)
+print(p2)
+dev.off()
+svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
+print(p2)
+dev.off()
+
+
+
+
+```
 
 ###### GO
 ```{r}
@@ -7433,7 +7755,6 @@ temp <- as_tibble(peak.CTCF) %>% bind_cols(result_tibble) %>%
   dplyr::select(seqnames, start, end, alignment)
 
 fwrite(temp, here(refDir, "ChIP", "CTCF_ESC_unionPeaks_motifAnnotated.bed"), sep = "\t", col.names = FALSE)
-
 ```
 
 #### Filtering convergent S-S loops
@@ -7866,17 +8187,7 @@ ks_result <- ks.test(
   diff.RNA %>% dplyr::filter(group == "withinBoundary") %>% pull(absLog2FC),
   diff.RNA %>% dplyr::filter(group == "noBoundary") %>% pull(absLog2FC)
 )
-
-# ggplot(diff.RNA, aes(x = group, y = log2FoldChange)) + geom_violin() + geom_boxplot(width = 0.1)
-
-getPvalWilcox <- function(data, group1, group2){
-  distance1 <- (data %>% dplyr::filter(group ==group1) )$absLog2FC
-  distance2 <- (data %>% dplyr::filter(group ==group2) )$absLog2FC
-  wil <- wilcox.test(distance1, distance2)
-  return(wil$p.value)
-}
-convPvalue(getPvalWilcox(diff.RNA, "withinBoundary", "noBoundary"))
-
+print(convPvalue(ks_result$p.value))
 
 # Create the CDF plot
 p <- ggplot(diff.RNA, aes(x = absLog2FC, color = group)) +
@@ -7923,6 +8234,134 @@ print(p)
 dev.off()
 svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
 print(p)
+dev.off()
+
+
+####### Per replicate
+diff.RNA.all <- fread(here(diffDir, "diff_G1.dTAG_G1.2i.dTAG_vs_G1.2i.DMSO.tsv")) %>%
+  dplyr::mutate(baseline = rowMeans(.[, 11:13], na.rm = TRUE)) %>%
+  dplyr::mutate(naiveLog2FC_rep1 =
+                  log2(((S04_R030_G1.2i.dTAG_rep1_batch2 +
+                           S05_R030_G1.2i.dTAG_rep1_batch3)/2 +1)/(baseline+1)),
+                naiveLog2FC_rep2 = log2(((S06_R030_G1.2i.dTAG_rep2_batch2 +
+                                            S07_R030_G1.2i.dTAG_rep2_batch3)/2 +1)/(baseline+1))) %>%
+  dplyr::select(ensembl_gene_id, naiveLog2FC_rep1, naiveLog2FC_rep2) %>%
+  plyr::mutate(absNaiveLog2FC_rep1 = abs(naiveLog2FC_rep1),
+                               absNaiveLog2FC_rep2 = abs(naiveLog2FC_rep2)) %>%
+  dplyr::mutate(group = case_when(
+    ensembl_gene_id %in% gene.wBoundary ~ "withinBoundary",
+    ensembl_gene_id %in% gene.noBoundary ~ "noBoundary",
+    TRUE ~ NA
+  )) %>%
+  dplyr::filter(!is.na(group))
+
+
+ks_result <- ks.test(
+  diff.RNA.all %>% dplyr::filter(group == "withinBoundary") %>% pull(absNaiveLog2FC_rep1),
+  diff.RNA.all %>% dplyr::filter(group == "noBoundary") %>% pull(absNaiveLog2FC_rep1)
+)
+print(convPvalue(ks_result$p.value))
+
+# Create the CDF plot
+p1 <- ggplot(diff.RNA.all, aes(x = absNaiveLog2FC_rep1, color = group)) +
+  scale_color_manual(values = (c("#777777", "#F28E2C"))) +
+  
+  stat_ecdf(size = 0.4, linewidth = lineMedium * mmToLineUnit, lineend = "square"  ) + # Use stat_ecdf to plot the empirical CDF
+  labs(
+    x = "Abs. log2(fold change)",
+    y = "Cumulative Probability"
+  ) + coord_cartesian(xlim = c(0, 1)) +
+  theme_classic() + # Clean theme
+  theme(
+    axis.title = element_text(
+      size = fontSizeM,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+    legend.position = "none",
+    legend.text = element_text(family = fontType, size = fontSizeS),
+    legend.title = element_text(family = fontType, size = fontSizeS)
+  )
+
+fileName <- paste0("log2FC_cdf_insulationBoundary_convSS_pe_rep1")
+width <- 33*mmToInch
+height <-33*mmToInch
+png(here(figDir, paste0(fileName, ".png")), res = 600, unit = "in", height = height, width = width)
+print(p1)
+dev.off()
+svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
+print(p1)
+dev.off()
+
+
+
+ks_result <- ks.test(
+  diff.RNA.all %>% dplyr::filter(group == "withinBoundary") %>% pull(absNaiveLog2FC_rep2),
+  diff.RNA.all %>% dplyr::filter(group == "noBoundary") %>% pull(absNaiveLog2FC_rep2)
+)
+print(convPvalue(ks_result$p.value))
+
+# Create the CDF plot
+p2 <- ggplot(diff.RNA.all, aes(x = absNaiveLog2FC_rep2, color = group)) +
+  scale_color_manual(values = (c("#777777", "#F28E2C"))) +
+  
+  stat_ecdf(size = 0.4, linewidth = lineMedium * mmToLineUnit, lineend = "square"  ) + # Use stat_ecdf to plot the empirical CDF
+  labs(
+    x = "Abs. log2(fold change)",
+    y = "Cumulative Probability"
+  ) + coord_cartesian(xlim = c(0, 1)) +
+  theme_classic() + # Clean theme
+  theme(
+    axis.title = element_text(
+      size = fontSizeM,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+    legend.position = "none",
+    legend.text = element_text(family = fontType, size = fontSizeS),
+    legend.title = element_text(family = fontType, size = fontSizeS)
+  )
+
+fileName <- paste0("log2FC_cdf_insulationBoundary_convSS_pe_rep2")
+width <- 33*mmToInch
+height <-33*mmToInch
+png(here(figDir, paste0(fileName, ".png")), res = 600, unit = "in", height = height, width = width)
+print(p2)
+dev.off()
+svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
+print(p2)
 dev.off()
 ```
 
@@ -15493,8 +15932,9 @@ ks_result3 <- ks.test(
   temp %>% dplyr::filter(group == "looped") %>% pull(absLog2FC)
 )
 
+temp$group <- factor(temp$group, levels = c("looped", "proxLooped", "prox", "noSE"))
 p <- ggplot(temp, aes(x = absLog2FC, color = group)) +
-  # scale_color_manual(values = (c("#777777", "#8B7E65", "#A28452", "#C2884D", "#F28E2C"))) +
+  scale_color_manual(values = (c("#3c5488", "#00a087", "#4dbbd5", "#e64b35"))) +
   stat_ecdf(size = 0.4, linewidth = lineMedium * mmToLineUnit, lineend = "square" ) + # Use stat_ecdf to plot the empirical CDF
   labs(
     x = "Abs. log2(fold change)",
@@ -15523,20 +15963,170 @@ p <- ggplot(temp, aes(x = absLog2FC, color = group)) +
       lineend = "square"
     ),
     panel.background = element_rect(fill = "transparent"),
-    # legend.position = "none",
+    legend.position = "none",
     legend.text = element_text(family = fontType, size = fontSizeS),
     legend.title = element_text(family = fontType, size = fontSizeS)
   ) + scale_y_continuous(labels = scales::number_format(accuracy = 0.1))
 # 
 # 
 fileName <- paste0("SEoverlap_abslog2FC_dTAGvsDMSO")
-width <- 60*mmToInch
+width <- 33*mmToInch
 height <-33*mmToInch
 png(here(figDir, paste0(fileName, ".png")), res = 600, unit = "in", height = height, width = width)
 print(p)
 dev.off()
 svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
 print(p)
+dev.off()
+
+## Per replicate
+diff.RNA.all <- fread(here(diffDir, "diff_G1.dTAG_G1.2i.dTAG_vs_G1.2i.DMSO.tsv")) %>%
+  dplyr::mutate(baseline = rowMeans(.[, 11:13], na.rm = TRUE)) %>%
+  dplyr::mutate(naiveLog2FC_rep1 =
+                  log2(((S04_R030_G1.2i.dTAG_rep1_batch2 +
+                           S05_R030_G1.2i.dTAG_rep1_batch3)/2 +1)/(baseline+1)),
+                naiveLog2FC_rep2 = log2(((S06_R030_G1.2i.dTAG_rep2_batch2 +
+                                            S07_R030_G1.2i.dTAG_rep2_batch3)/2 +1)/(baseline+1))) %>%
+  dplyr::select(ensembl_gene_id, naiveLog2FC_rep1, naiveLog2FC_rep2)
+
+
+
+temp <- left_join(temp, diff.RNA.all, by = c("ensembl_gene_id"))
+temp <- temp %>% dplyr::mutate(absNaiveLog2FC_rep1 = abs(naiveLog2FC_rep1),
+                               absNaiveLog2FC_rep2 = abs(naiveLog2FC_rep2))
+
+
+
+ks_result1 <- ks.test(
+  temp %>% dplyr::filter(group == "noSE") %>% pull(absNaiveLog2FC_rep1),
+  temp %>% dplyr::filter(group == "prox") %>% pull(absNaiveLog2FC_rep1)
+)
+ks_result2 <- ks.test(
+  temp %>% dplyr::filter(group == "noSE") %>% pull(absNaiveLog2FC_rep1),
+  temp %>% dplyr::filter(group == "proxLooped") %>% pull(absNaiveLog2FC_rep1)
+)
+ks_result3 <- ks.test(
+  temp %>% dplyr::filter(group == "noSE") %>% pull(absNaiveLog2FC_rep1),
+  temp %>% dplyr::filter(group == "looped") %>% pull(absNaiveLog2FC_rep1)
+)
+
+print(convPvalue(ks_result1$p.value))
+print(convPvalue(ks_result2$p.value))
+print(convPvalue(ks_result3$p.value))
+
+
+
+p1 <- ggplot(temp, aes(x = absNaiveLog2FC_rep1, color = group)) +
+  scale_color_manual(values = (c("#3c5488", "#00a087", "#4dbbd5", "#e64b35"))) +
+  stat_ecdf(size = 0.4, linewidth = lineMedium * mmToLineUnit, lineend = "square" ) + # Use stat_ecdf to plot the empirical CDF
+  labs(
+    x = "Abs. log2(fold change)",
+    y = "Cumulative Probability"
+  ) + coord_cartesian(xlim = c(0, 1.5)) +
+  theme_classic() + # Clean theme
+  theme(
+    axis.title = element_text(
+      size = fontSizeM,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+    legend.position = "none",
+    legend.text = element_text(family = fontType, size = fontSizeS),
+    legend.title = element_text(family = fontType, size = fontSizeS)
+  ) + scale_y_continuous(labels = scales::number_format(accuracy = 0.1))
+# 
+# 
+fileName <- paste0("SEoverlap_abslog2FC_dTAGvsDMSO_rep1")
+width <- 33*mmToInch
+height <-33*mmToInch
+png(here(figDir, paste0(fileName, ".png")), res = 600, unit = "in", height = height, width = width)
+print(p1)
+dev.off()
+svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
+print(p1)
+dev.off()
+
+
+
+ks_result1 <- ks.test(
+  temp %>% dplyr::filter(group == "noSE") %>% pull(absNaiveLog2FC_rep2),
+  temp %>% dplyr::filter(group == "prox") %>% pull(absNaiveLog2FC_rep2)
+)
+ks_result2 <- ks.test(
+  temp %>% dplyr::filter(group == "noSE") %>% pull(absNaiveLog2FC_rep2),
+  temp %>% dplyr::filter(group == "proxLooped") %>% pull(absNaiveLog2FC_rep2)
+)
+ks_result3 <- ks.test(
+  temp %>% dplyr::filter(group == "noSE") %>% pull(absNaiveLog2FC_rep2),
+  temp %>% dplyr::filter(group == "looped") %>% pull(absNaiveLog2FC_rep2)
+)
+
+print(convPvalue(ks_result1$p.value))
+print(convPvalue(ks_result2$p.value))
+print(convPvalue(ks_result3$p.value))
+
+
+
+p2 <- ggplot(temp, aes(x = absNaiveLog2FC_rep2, color = group)) +
+  scale_color_manual(values = (c("#3c5488", "#00a087", "#4dbbd5", "#e64b35"))) +
+  stat_ecdf(size = 0.4, linewidth = lineMedium * mmToLineUnit, lineend = "square" ) + # Use stat_ecdf to plot the empirical CDF
+  labs(
+    x = "Abs. log2(fold change)",
+    y = "Cumulative Probability"
+  ) + coord_cartesian(xlim = c(0, 1.5)) +
+  theme_classic() + # Clean theme
+  theme(
+    axis.title = element_text(
+      size = fontSizeM,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+    legend.position = "none",
+    legend.text = element_text(family = fontType, size = fontSizeS),
+    legend.title = element_text(family = fontType, size = fontSizeS)
+  ) + scale_y_continuous(labels = scales::number_format(accuracy = 0.1))
+# 
+# 
+fileName <- paste0("SEoverlap_abslog2FC_dTAGvsDMSO_rep2")
+width <- 33*mmToInch
+height <-33*mmToInch
+png(here(figDir, paste0(fileName, ".png")), res = 600, unit = "in", height = height, width = width)
+print(p2)
+dev.off()
+svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
+print(p2)
 dev.off()
 
 
