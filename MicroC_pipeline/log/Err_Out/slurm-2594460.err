@@ -64,3 +64,34 @@ INFO:cooler.balance:variance is 1.4648013520508454
 INFO:cooler.balance:variance is 0.9570946205558045
 INFO:cooler.balance:variance is 0.6237391974148329
 INFO:cooler.balance:variance is 0.4074976271635522
+INFO:cooler.balance:variance is 0.2657879023886279
+INFO:cooler.balance:variance is 0.17364681214203287
+INFO:cooler.balance:variance is 0.11333247611541047
+INFO:cooler.balance:variance is 0.07405115962555807
+INFO:cooler.balance:variance is 0.048354562348096694
+INFO:cooler.balance:variance is 0.031599486848063574
+INFO:cooler.balance:variance is 0.020642435625244333
+INFO:cooler.balance:variance is 0.013492026650882555
+INFO:cooler.balance:variance is 0.008816616264938265
+INFO:cooler.balance:variance is 0.005763602099051899
+INFO:cooler.balance:variance is 0.003767374438049519
+INFO:cooler.balance:variance is 0.0024632297941044948
+INFO:cooler.balance:variance is 0.0016104651373677987
+INFO:cooler.balance:variance is 0.0010531438348392124
+INFO:cooler.balance:variance is 0.0006886856706460695
+INFO:cooler.balance:variance is 0.00045042516768581186
+INFO:cooler.balance:variance is 0.0002945988728944075
+INFO:cooler.balance:variance is 0.00019270478061258177
+INFO:cooler.balance:variance is 0.00012605676845918966
+INFO:cooler.balance:variance is 8.246732194095201e-05
+INFO:cooler.balance:variance is 5.3952623312897676e-05
+INFO:cooler.balance:variance is 3.530020990055544e-05
+INFO:cooler.balance:variance is 2.3097125365644717e-05
+INFO:cooler.balance:variance is 1.5113555550052702e-05
+INFO:cooler.balance:variance is 9.889884530971322e-06
+INFO:root:creating a Pool of 16 workers
+/home/fs01/ukl4001/micromamba/envs/hicexplorer/lib/python3.12/site-packages/cooltools/api/expected.py:351: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  groups = dict(iter(bins.groupby("chrom")[clr_weight_name]))
+[Tue Nov 25 13:31:05 2025]
+Finished job 0.
+1 of 1 steps (100%) done

@@ -166,3 +166,44 @@ Error in rule genomedisco:
     cluster_jobid: Submitted batch job 2594436
 
 Error executing rule genomedisco on cluster (jobid: 1, external: Submitted batch job 2594436, jobscript: /athena/cayuga_0007/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/.snakemake/tmp.a3amhiku/snakejob.genomedisco.1.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Tue Nov 25 13:46:26 2025]
+Error in rule genomedisco:
+    jobid: 5
+    input: /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_62.samples, /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_62.pairs
+    output: /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/log/genomedisco_62.ok
+    conda-env: genomedisco_python2
+    shell:
+        
+		mkdir -p /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_62
+
+		genomedisco run_all --metadata_samples /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_62.samples 					 --metadata_pairs /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_62.pairs 					 --bins /athena/apostoloulab/scratch/ukl4001/reference/mm10/mm10.bin.50kb.bed.gz 					 --parameters_file /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/parameters.txt 					 --outdir /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_62
+
+		# Made it?
+		touch /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/log/genomedisco_62.ok
+		
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: Submitted batch job 2594435
+
+Error executing rule genomedisco on cluster (jobid: 5, external: Submitted batch job 2594435, jobscript: /athena/cayuga_0007/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/.snakemake/tmp.a3amhiku/snakejob.genomedisco.5.sh). For error details see the cluster log and the log files of the involved rule(s).
+[Tue Nov 25 14:17:18 2025]
+Error in rule genomedisco:
+    jobid: 2
+    input: /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_59.samples, /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_59.pairs
+    output: /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/log/genomedisco_59.ok
+    conda-env: genomedisco_python2
+    shell:
+        
+		mkdir -p /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_59
+
+		genomedisco run_all --metadata_samples /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_59.samples 					 --metadata_pairs /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_59.pairs 					 --bins /athena/apostoloulab/scratch/ukl4001/reference/mm10/mm10.bin.50kb.bed.gz 					 --parameters_file /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/parameters.txt 					 --outdir /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_59
+
+		# Made it?
+		touch /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/log/genomedisco_59.ok
+		
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: Submitted batch job 2594434
+
+Error executing rule genomedisco on cluster (jobid: 2, external: Submitted batch job 2594434, jobscript: /athena/cayuga_0007/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/.snakemake/tmp.a3amhiku/snakejob.genomedisco.2.sh). For error details see the cluster log and the log files of the involved rule(s).
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2025-11-25T123430.155312.snakemake.log

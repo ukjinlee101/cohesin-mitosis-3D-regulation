@@ -447,3 +447,46 @@ Finished job 1.
 [Tue Nov 25 13:28:17 2025]
 Finished job 13.
 8 of 19 steps (42%) done
+[Tue Nov 25 13:31:08 2025]
+Finished job 17.
+9 of 19 steps (47%) done
+[Tue Nov 25 13:32:39 2025]
+Finished job 3.
+10 of 19 steps (53%) done
+[Tue Nov 25 13:33:19 2025]
+Finished job 15.
+11 of 19 steps (58%) done
+[Tue Nov 25 13:34:19 2025]
+Finished job 4.
+12 of 19 steps (63%) done
+[Tue Nov 25 13:36:29 2025]
+Finished job 8.
+13 of 19 steps (68%) done
+[Tue Nov 25 13:38:49 2025]
+Finished job 6.
+14 of 19 steps (74%) done
+[Tue Nov 25 13:38:59 2025]
+Finished job 10.
+15 of 19 steps (79%) done
+[Tue Nov 25 13:42:29 2025]
+Finished job 16.
+16 of 19 steps (84%) done
+[Tue Nov 25 13:43:19 2025]
+Finished job 12.
+17 of 19 steps (89%) done
+[Tue Nov 25 13:43:20 2025]
+Finished job 14.
+18 of 19 steps (95%) done
+Select jobs to execute...
+
+[Tue Nov 25 13:43:20 2025]
+localrule all:
+    input: result/log/success/normCoolBatch_G1DMSO_B1_25000.ok, result/log/success/normCoolBatch_G1DMSO_B1_10000.ok, result/log/success/normCoolBatch_G1DMSO_B1_5000.ok, result/log/success/normCoolBatch_G1DMSO_B2_25000.ok, result/log/success/normCoolBatch_G1DMSO_B2_10000.ok, result/log/success/normCoolBatch_G1DMSO_B2_5000.ok, result/log/success/normCoolBatch_G1dTAG_B1_25000.ok, result/log/success/normCoolBatch_G1dTAG_B1_10000.ok, result/log/success/normCoolBatch_G1dTAG_B1_5000.ok, result/log/success/normCoolBatch_G1dTAG_B3_25000.ok, result/log/success/normCoolBatch_G1dTAG_B3_10000.ok, result/log/success/normCoolBatch_G1dTAG_B3_5000.ok, result/log/success/normCoolBatch_G1A485_B2_25000.ok, result/log/success/normCoolBatch_G1A485_B2_10000.ok, result/log/success/normCoolBatch_G1A485_B2_5000.ok, result/log/success/normCoolBatch_G1A485_B3_25000.ok, result/log/success/normCoolBatch_G1A485_B3_10000.ok, result/log/success/normCoolBatch_G1A485_B3_5000.ok
+    jobid: 0
+    reason: Input files updated by another job: result/log/success/normCoolBatch_G1dTAG_B1_5000.ok, result/log/success/normCoolBatch_G1dTAG_B3_5000.ok, result/log/success/normCoolBatch_G1A485_B2_5000.ok, result/log/success/normCoolBatch_G1DMSO_B2_5000.ok, result/log/success/normCoolBatch_G1DMSO_B2_10000.ok, result/log/success/normCoolBatch_G1A485_B3_10000.ok, result/log/success/normCoolBatch_G1dTAG_B1_10000.ok, result/log/success/normCoolBatch_G1DMSO_B1_25000.ok, result/log/success/normCoolBatch_G1dTAG_B3_10000.ok, result/log/success/normCoolBatch_G1A485_B2_10000.ok, result/log/success/normCoolBatch_G1A485_B3_25000.ok, result/log/success/normCoolBatch_G1DMSO_B1_5000.ok, result/log/success/normCoolBatch_G1dTAG_B1_25000.ok, result/log/success/normCoolBatch_G1A485_B2_25000.ok, result/log/success/normCoolBatch_G1DMSO_B2_25000.ok, result/log/success/normCoolBatch_G1dTAG_B3_25000.ok, result/log/success/normCoolBatch_G1A485_B3_5000.ok, result/log/success/normCoolBatch_G1DMSO_B1_10000.ok
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=/athena/cayuga_0007/scratch/ukl4001/temp
+
+[Tue Nov 25 13:43:20 2025]
+Finished job 0.
+19 of 19 steps (100%) done
+Complete log: .snakemake/log/2025-11-25T131241.234004.snakemake.log

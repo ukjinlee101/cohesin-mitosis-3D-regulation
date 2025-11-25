@@ -31,3 +31,56 @@ INFO:cooler.cli.balance:Balancing "/athena/apostoloulab/scratch/ukl4001/data/coo
 INFO:cooler.balance:variance is 3836968.777670927
 INFO:cooler.balance:variance is 2925007.0738134203
 INFO:cooler.balance:variance is 493446.56667518185
+INFO:cooler.balance:variance is 536750.0958970437
+INFO:cooler.balance:variance is 138510.91704880985
+INFO:cooler.balance:variance is 135086.32045744592
+INFO:cooler.balance:variance is 47491.61792983896
+INFO:cooler.balance:variance is 39168.55236027723
+INFO:cooler.balance:variance is 16936.544827684538
+INFO:cooler.balance:variance is 12279.850510712555
+INFO:cooler.balance:variance is 6028.802581959471
+INFO:cooler.balance:variance is 4024.271348403336
+INFO:cooler.balance:variance is 2130.911171189785
+INFO:cooler.balance:variance is 1352.957826317051
+INFO:cooler.balance:variance is 749.1715732403877
+INFO:cooler.balance:variance is 461.77479932805255
+INFO:cooler.balance:variance is 262.55838509698503
+INFO:cooler.balance:variance is 159.0494167858483
+INFO:cooler.balance:variance is 91.86865230162995
+INFO:cooler.balance:variance is 55.09127175372485
+INFO:cooler.balance:variance is 32.12260674758416
+INFO:cooler.balance:variance is 19.150843033075034
+INFO:cooler.balance:variance is 11.230065906387706
+INFO:cooler.balance:variance is 6.672754044905725
+INFO:cooler.balance:variance is 3.926434331060484
+INFO:cooler.balance:variance is 2.3286199343030463
+INFO:cooler.balance:variance is 1.3731303604002054
+INFO:cooler.balance:variance is 0.8134965994716903
+INFO:cooler.balance:variance is 0.48033073368865753
+INFO:cooler.balance:variance is 0.28440601966323886
+INFO:cooler.balance:variance is 0.1680674502882053
+INFO:cooler.balance:variance is 0.09948472815294712
+INFO:cooler.balance:variance is 0.05882097534014964
+INFO:cooler.balance:variance is 0.034813415566196285
+INFO:cooler.balance:variance is 0.020590815896169012
+INFO:cooler.balance:variance is 0.01218614463218714
+INFO:cooler.balance:variance is 0.007209321292674365
+INFO:cooler.balance:variance is 0.0042666286506343855
+INFO:cooler.balance:variance is 0.0025245400318710397
+INFO:cooler.balance:variance is 0.0014941008703951498
+INFO:cooler.balance:variance is 0.000884150396448369
+INFO:cooler.balance:variance is 0.0005232811123237034
+INFO:cooler.balance:variance is 0.000309682401650546
+INFO:cooler.balance:variance is 0.000183289609488098
+INFO:cooler.balance:variance is 0.00010847892896571707
+INFO:cooler.balance:variance is 6.420646839583875e-05
+INFO:cooler.balance:variance is 3.800196592243554e-05
+INFO:cooler.balance:variance is 2.2493162355919422e-05
+INFO:cooler.balance:variance is 1.3313524735918197e-05
+INFO:cooler.balance:variance is 7.880382535121251e-06
+INFO:root:creating a Pool of 16 workers
+/home/fs01/ukl4001/micromamba/envs/hicexplorer/lib/python3.12/site-packages/cooltools/api/expected.py:351: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  groups = dict(iter(bins.groupby("chrom")[clr_weight_name]))
+[Tue Nov 25 13:33:11 2025]
+Finished job 0.
+1 of 1 steps (100%) done
