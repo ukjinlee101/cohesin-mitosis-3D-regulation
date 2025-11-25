@@ -1,0 +1,66 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 16
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=11282, mem_mib=10760, disk_mb=11282, disk_mib=10760
+Select jobs to execute...
+
+[Tue Nov 25 13:22:49 2025]
+rule normCoolBatch:
+    input: /athena/apostoloulab/scratch/ukl4001/data/mcool_batch/G1A485_B3_allRes.mcool
+    output: result/log/success/normCoolBatch_G1A485_B3_10000.ok, /athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1A485_B3_10000bp_KR.cool, /athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1A485_B3_10000bp_KR_exp.tsv
+    jobid: 0
+    reason: Forced execution
+    wildcards: sampleBatch=G1A485_B3, res=10000
+    threads: 16
+    resources: mem_mb=11282, mem_mib=10760, disk_mb=11282, disk_mib=10760, tmpdir=/athena/cayuga_0007/scratch/ukl4001/temp
+
+
+
+		hicConvertFormat -m /athena/apostoloulab/scratch/ukl4001/data/mcool_batch/G1A485_B3_allRes.mcool:://resolutions/10000 --inputFormat cool 			--outputFormat cool -o /athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1A485_B3_10000bp_KR.cool --correction_name KR
+
+		cooler balance --force -p 16 /athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1A485_B3_10000bp_KR.cool
+
+		cooltools expected-cis -p 16 -o /athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1A485_B3_10000bp_KR_exp.tsv /athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1A485_B3_10000bp_KR.cool
+
+		# Made it?
+		touch result/log/success/normCoolBatch_G1A485_B3_10000.ok
+		
+Activating conda environment: hicexplorer
+INFO:cooler.cli.balance:Balancing "/athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1A485_B3_10000bp_KR.cool"
+INFO:cooler.balance:variance is 8574015.305810072
+INFO:cooler.balance:variance is 7231690.977874846
+INFO:cooler.balance:variance is 417235.740033175
+INFO:cooler.balance:variance is 1011111.3100740782
+INFO:cooler.balance:variance is 184111.1921780742
+INFO:cooler.balance:variance is 276071.3732443438
+INFO:cooler.balance:variance is 85315.51388458817
+INFO:cooler.balance:variance is 93748.13556423876
+INFO:cooler.balance:variance is 38799.80861402691
+INFO:cooler.balance:variance is 35002.180965413616
+INFO:cooler.balance:variance is 17215.73330505919
+INFO:cooler.balance:variance is 13727.474740755668
+INFO:cooler.balance:variance is 7498.093363203123
+INFO:cooler.balance:variance is 5537.451824151522
+INFO:cooler.balance:variance is 3226.6024149276896
+INFO:cooler.balance:variance is 2272.309620234034
+INFO:cooler.balance:variance is 1378.5396621125954
+INFO:cooler.balance:variance is 942.6870105143504
+INFO:cooler.balance:variance is 586.6383318457525
+INFO:cooler.balance:variance is 393.9308702537078
+INFO:cooler.balance:variance is 249.1593932010486
+INFO:cooler.balance:variance is 165.44547247119723
+INFO:cooler.balance:variance is 105.74824719701625
+INFO:cooler.balance:variance is 69.73687203786108
+INFO:cooler.balance:variance is 44.882009494565956
+INFO:cooler.balance:variance is 29.474613555857353
+INFO:cooler.balance:variance is 19.0568971557276
+INFO:cooler.balance:variance is 12.483842329316074
+INFO:cooler.balance:variance is 8.09667175772066
+INFO:cooler.balance:variance is 5.296400375212471
+INFO:cooler.balance:variance is 3.442532094180098
+INFO:cooler.balance:variance is 2.2501698032035016
+INFO:cooler.balance:variance is 1.4648013520508454
+INFO:cooler.balance:variance is 0.9570946205558045
+INFO:cooler.balance:variance is 0.6237391974148329
+INFO:cooler.balance:variance is 0.4074976271635522

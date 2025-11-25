@@ -1,0 +1,33 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 16
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=13253, mem_mib=12640, disk_mb=13253, disk_mib=12640
+Select jobs to execute...
+
+[Tue Nov 25 13:22:08 2025]
+rule normCoolBatch:
+    input: /athena/apostoloulab/scratch/ukl4001/data/mcool_batch/G1A485_B2_allRes.mcool
+    output: result/log/success/normCoolBatch_G1A485_B2_5000.ok, /athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1A485_B2_5000bp_KR.cool, /athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1A485_B2_5000bp_KR_exp.tsv
+    jobid: 0
+    reason: Forced execution
+    wildcards: sampleBatch=G1A485_B2, res=5000
+    threads: 16
+    resources: mem_mb=13253, mem_mib=12640, disk_mb=13253, disk_mib=12640, tmpdir=/athena/cayuga_0007/scratch/ukl4001/temp
+
+
+
+		hicConvertFormat -m /athena/apostoloulab/scratch/ukl4001/data/mcool_batch/G1A485_B2_allRes.mcool:://resolutions/5000 --inputFormat cool 			--outputFormat cool -o /athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1A485_B2_5000bp_KR.cool --correction_name KR
+
+		cooler balance --force -p 16 /athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1A485_B2_5000bp_KR.cool
+
+		cooltools expected-cis -p 16 -o /athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1A485_B2_5000bp_KR_exp.tsv /athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1A485_B2_5000bp_KR.cool
+
+		# Made it?
+		touch result/log/success/normCoolBatch_G1A485_B2_5000.ok
+		
+Activating conda environment: hicexplorer
+INFO:cooler.cli.balance:Balancing "/athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1A485_B2_5000bp_KR.cool"
+INFO:cooler.balance:variance is 3836968.777670927
+INFO:cooler.balance:variance is 2925007.0738134203
+INFO:cooler.balance:variance is 493446.56667518185

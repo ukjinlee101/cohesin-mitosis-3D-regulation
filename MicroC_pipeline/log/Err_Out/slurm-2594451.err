@@ -1,0 +1,110 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 16
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=6329, mem_mib=6036, disk_mb=6329, disk_mib=6036
+Select jobs to execute...
+
+[Tue Nov 25 13:12:44 2025]
+rule normCoolBatch:
+    input: /athena/apostoloulab/scratch/ukl4001/data/mcool_batch/G1DMSO_B1_allRes.mcool
+    output: result/log/success/normCoolBatch_G1DMSO_B1_10000.ok, /athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1DMSO_B1_10000bp_KR.cool, /athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1DMSO_B1_10000bp_KR_exp.tsv
+    jobid: 0
+    reason: Forced execution
+    wildcards: sampleBatch=G1DMSO_B1, res=10000
+    threads: 16
+    resources: mem_mb=6329, mem_mib=6036, disk_mb=6329, disk_mib=6036, tmpdir=/athena/cayuga_0007/scratch/ukl4001/temp
+
+
+
+		hicConvertFormat -m /athena/apostoloulab/scratch/ukl4001/data/mcool_batch/G1DMSO_B1_allRes.mcool:://resolutions/10000 --inputFormat cool 			--outputFormat cool -o /athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1DMSO_B1_10000bp_KR.cool --correction_name KR
+
+		cooler balance --force -p 16 /athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1DMSO_B1_10000bp_KR.cool
+
+		cooltools expected-cis -p 16 -o /athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1DMSO_B1_10000bp_KR_exp.tsv /athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1DMSO_B1_10000bp_KR.cool
+
+		# Made it?
+		touch result/log/success/normCoolBatch_G1DMSO_B1_10000.ok
+		
+Activating conda environment: hicexplorer
+INFO:cooler.cli.balance:Balancing "/athena/apostoloulab/scratch/ukl4001/data/cool_norm_batch/G1DMSO_B1_10000bp_KR.cool"
+INFO:cooler.balance:variance is 1164106.5829406516
+INFO:cooler.balance:variance is 930086.83826693
+INFO:cooler.balance:variance is 261586.67355267244
+INFO:cooler.balance:variance is 368955.9022315867
+INFO:cooler.balance:variance is 110054.79542181661
+INFO:cooler.balance:variance is 154004.8055088438
+INFO:cooler.balance:variance is 55400.58591936648
+INFO:cooler.balance:variance is 68020.22316340727
+INFO:cooler.balance:variance is 29275.146188462415
+INFO:cooler.balance:variance is 31300.33226787601
+INFO:cooler.balance:variance is 15496.974391771706
+INFO:cooler.balance:variance is 14809.986287834341
+INFO:cooler.balance:variance is 8128.2487625042395
+INFO:cooler.balance:variance is 7142.060217866151
+INFO:cooler.balance:variance is 4221.778299063892
+INFO:cooler.balance:variance is 3489.911771921157
+INFO:cooler.balance:variance is 2175.272142786961
+INFO:cooler.balance:variance is 1721.0940830291527
+INFO:cooler.balance:variance is 1114.0345709758012
+INFO:cooler.balance:variance is 854.2885466873483
+INFO:cooler.balance:variance is 568.005588769224
+INFO:cooler.balance:variance is 425.97548645916174
+INFO:cooler.balance:variance is 288.67568871844844
+INFO:cooler.balance:variance is 213.08975784329382
+INFO:cooler.balance:variance is 146.3745019916403
+INFO:cooler.balance:variance is 106.83875703245256
+INFO:cooler.balance:variance is 74.09757385631528
+INFO:cooler.balance:variance is 53.653057748620505
+INFO:cooler.balance:variance is 37.465491721143096
+INFO:cooler.balance:variance is 26.9746315016071
+INFO:cooler.balance:variance is 18.927575041747584
+INFO:cooler.balance:variance is 13.572745816819749
+INFO:cooler.balance:variance is 9.556518840778065
+INFO:cooler.balance:variance is 6.833276351001235
+INFO:cooler.balance:variance is 4.823036892975247
+INFO:cooler.balance:variance is 3.4416525456505385
+INFO:cooler.balance:variance is 2.433385353360017
+INFO:cooler.balance:variance is 1.7339260941547854
+INFO:cooler.balance:variance is 1.2274633999876843
+INFO:cooler.balance:variance is 0.8737421972480743
+INFO:cooler.balance:variance is 0.6190710650175524
+INFO:cooler.balance:variance is 0.4403514296701741
+INFO:cooler.balance:variance is 0.3121949535408
+INFO:cooler.balance:variance is 0.22195276861363175
+INFO:cooler.balance:variance is 0.15742664564828407
+INFO:cooler.balance:variance is 0.11188033742771768
+INFO:cooler.balance:variance is 0.07937929219742279
+INFO:cooler.balance:variance is 0.056398787458168634
+INFO:cooler.balance:variance is 0.04002392210595972
+INFO:cooler.balance:variance is 0.028431645284388872
+INFO:cooler.balance:variance is 0.02017996212383896
+INFO:cooler.balance:variance is 0.014333286070283313
+INFO:cooler.balance:variance is 0.010174492488077351
+INFO:cooler.balance:variance is 0.007225996911707089
+INFO:cooler.balance:variance is 0.005129786589817914
+INFO:cooler.balance:variance is 0.003642970332325549
+INFO:cooler.balance:variance is 0.0025863166302906348
+INFO:cooler.balance:variance is 0.0018366130800814087
+INFO:cooler.balance:variance is 0.0013039506496557635
+INFO:cooler.balance:variance is 0.0009259396635611992
+INFO:cooler.balance:variance is 0.0006574133913876827
+INFO:cooler.balance:variance is 0.0004668203986756396
+INFO:cooler.balance:variance is 0.0003314472917313854
+INFO:cooler.balance:variance is 0.000235352315873206
+INFO:cooler.balance:variance is 0.00016710497141743334
+INFO:cooler.balance:variance is 0.00011865559108479497
+INFO:cooler.balance:variance is 8.424876389065155e-05
+INFO:cooler.balance:variance is 5.982169426802871e-05
+INFO:cooler.balance:variance is 4.247537197033262e-05
+INFO:cooler.balance:variance is 3.0159890550165174e-05
+INFO:cooler.balance:variance is 2.1414625403508788e-05
+INFO:cooler.balance:variance is 1.5205517538093167e-05
+INFO:cooler.balance:variance is 1.0796513143732475e-05
+INFO:cooler.balance:variance is 7.666072685246635e-06
+INFO:root:creating a Pool of 16 workers
+/home/fs01/ukl4001/micromamba/envs/hicexplorer/lib/python3.12/site-packages/cooltools/api/expected.py:351: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+  groups = dict(iter(bins.groupby("chrom")[clr_weight_name]))
+[Tue Nov 25 13:18:12 2025]
+Finished job 0.
+1 of 1 steps (100%) done

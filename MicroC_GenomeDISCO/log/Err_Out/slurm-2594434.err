@@ -1,0 +1,26 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 4
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954
+Select jobs to execute...
+
+[Tue Nov 25 12:34:34 2025]
+rule genomedisco:
+    input: /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_59.samples, /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_59.pairs
+    output: /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/log/genomedisco_59.ok
+    jobid: 0
+    reason: Forced execution
+    wildcards: num=59
+    threads: 4
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=/athena/cayuga_0007/scratch/ukl4001/temp
+
+
+		mkdir -p /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_59
+
+		genomedisco run_all --metadata_samples /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_59.samples 					 --metadata_pairs /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_59.pairs 					 --bins /athena/apostoloulab/scratch/ukl4001/reference/mm10/mm10.bin.50kb.bed.gz 					 --parameters_file /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/parameters.txt 					 --outdir /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_59
+
+		# Made it?
+		touch /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/log/genomedisco_59.ok
+		
+Activating conda environment: genomedisco_python2

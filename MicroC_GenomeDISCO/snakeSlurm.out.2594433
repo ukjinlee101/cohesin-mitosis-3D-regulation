@@ -1,0 +1,3 @@
+SLURM_SUBMIT_DIR = /athena/cayuga_0007/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO
+PWD at runtime    = /athena/cayuga_0007/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO
+Using Snakefile: MicroC_GenomeDISCO_pipeline.smk

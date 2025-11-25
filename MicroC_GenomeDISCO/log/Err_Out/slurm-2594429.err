@@ -1,0 +1,62 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 4
+Rules claiming more threads will be scaled down.
+Provided resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954
+Select jobs to execute...
+
+[Tue Nov 25 12:04:46 2025]
+rule genomedisco:
+    input: /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_60.samples, /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_60.pairs
+    output: /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/log/genomedisco_60.ok
+    jobid: 0
+    reason: Forced execution
+    wildcards: num=60
+    threads: 4
+    resources: mem_mb=1000, mem_mib=954, disk_mb=1000, disk_mib=954, tmpdir=/athena/cayuga_0007/scratch/ukl4001/temp
+
+
+		mkdir -p /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_60
+
+		genomedisco run_all --metadata_samples /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_60.samples 					 --metadata_pairs /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_60.pairs 					 --bins /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/reference/mm10/mm10.bin.50kb.bed.gz 					 --parameters_file /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/parameters.txt 					 --outdir /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_60
+
+		# Made it?
+		touch /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/log/genomedisco_60.ok
+		
+Activating conda environment: genomedisco_python2
+gzip: /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/reference/mm10/mm10.bin.50kb.bed.gz: No such file or directory
+Traceback (most recent call last):
+  File "/home/fs01/ukl4001/micromamba/envs/genomedisco_python2/bin/genomedisco", line 11, in <module>
+    load_entry_point('genomedisco', 'console_scripts', 'genomedisco')()
+  File "/athena/cayuga_0007/scratch/ukl4001/001_software/genomedisco/genomedisco/__main__.py", line 17, in main
+    command_methods[command](**args)
+  File "/athena/cayuga_0007/scratch/ukl4001/001_software/genomedisco/genomedisco/concordance_utils.py", line 847, in run_all
+    preprocess(metadata_samples,bins,re_fragments,methods,outdir,running_mode,subset_chromosomes,parameters_file,timing)
+  File "/athena/cayuga_0007/scratch/ukl4001/001_software/genomedisco/genomedisco/concordance_utils.py", line 150, in preprocess
+    write_resolution(nodes,resolution_file)
+  File "/athena/cayuga_0007/scratch/ukl4001/001_software/genomedisco/genomedisco/concordance_utils.py", line 114, in write_resolution
+    for line in gzip.open(nodes,'r'):
+  File "/home/fs01/ukl4001/micromamba/envs/genomedisco_python2/lib/python2.7/gzip.py", line 34, in open
+    return GzipFile(filename, mode, compresslevel)
+  File "/home/fs01/ukl4001/micromamba/envs/genomedisco_python2/lib/python2.7/gzip.py", line 94, in __init__
+    fileobj = self.myfileobj = __builtin__.open(filename, mode or 'rb')
+IOError: [Errno 2] No such file or directory: '/athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/reference/mm10/mm10.bin.50kb.bed.gz'
+[Tue Nov 25 12:04:52 2025]
+Error in rule genomedisco:
+    jobid: 0
+    input: /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_60.samples, /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_60.pairs
+    output: /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/log/genomedisco_60.ok
+    conda-env: genomedisco_python2
+    shell:
+        
+		mkdir -p /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_60
+
+		genomedisco run_all --metadata_samples /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_60.samples 					 --metadata_pairs /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/metadata/metadata_60.pairs 					 --bins /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/reference/mm10/mm10.bin.50kb.bed.gz 					 --parameters_file /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/parameters.txt 					 --outdir /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_60
+
+		# Made it?
+		touch /athena/apostoloulab/scratch/ukl4001/MtoG1_analysis_code/MicroC_GenomeDISCO/log/genomedisco_60.ok
+		
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message

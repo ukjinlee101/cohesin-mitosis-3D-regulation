@@ -1,0 +1,3 @@
+SLURM_SUBMIT_DIR = /athena/cayuga_0007/scratch/ukl4001/MtoG1_analysis_code/MicroC_pipeline
+PWD at runtime    = /athena/cayuga_0007/scratch/ukl4001/MtoG1_analysis_code/MicroC_pipeline
+Using Snakefile: MicroC_pipeline_step5.smk

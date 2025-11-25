@@ -9,6 +9,9 @@
 #SBATCH -o snakeSlurm.out.%J
 
 source ~/.bashrc
+cd $SLURM_SUBMIT_DIR
+echo "SLURM_SUBMIT_DIR = $SLURM_SUBMIT_DIR"
+echo "PWD at runtime    = $(pwd)"
 
 ###### Activating conda environment for snakemake
 ###### snakemake package should be installed in this conda enviromnment

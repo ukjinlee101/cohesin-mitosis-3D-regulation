@@ -1,0 +1,306 @@
+Step: preprocess | Tue Nov 25 12:34:36 2025 | Splitting nodes chr1
+Step: preprocess | Tue Nov 25 12:34:37 2025 | Splitting G1DMSO_pooled_allRes chr1
+Step: preprocess | Tue Nov 25 12:34:59 2025 | Splitting EpiG1dTAG_pooled_allRes chr1
+Step: preprocess | Tue Nov 25 12:35:22 2025 | Splitting nodes chr10
+Step: preprocess | Tue Nov 25 12:35:22 2025 | Splitting G1DMSO_pooled_allRes chr10
+Step: preprocess | Tue Nov 25 12:35:44 2025 | Splitting EpiG1dTAG_pooled_allRes chr10
+Step: preprocess | Tue Nov 25 12:36:05 2025 | Splitting nodes chr11
+Step: preprocess | Tue Nov 25 12:36:06 2025 | Splitting G1DMSO_pooled_allRes chr11
+Step: preprocess | Tue Nov 25 12:36:28 2025 | Splitting EpiG1dTAG_pooled_allRes chr11
+Step: preprocess | Tue Nov 25 12:36:49 2025 | Splitting nodes chr12
+Step: preprocess | Tue Nov 25 12:36:49 2025 | Splitting G1DMSO_pooled_allRes chr12
+Step: preprocess | Tue Nov 25 12:37:11 2025 | Splitting EpiG1dTAG_pooled_allRes chr12
+Step: preprocess | Tue Nov 25 12:37:32 2025 | Splitting nodes chr13
+Step: preprocess | Tue Nov 25 12:37:32 2025 | Splitting G1DMSO_pooled_allRes chr13
+Step: preprocess | Tue Nov 25 12:37:54 2025 | Splitting EpiG1dTAG_pooled_allRes chr13
+Step: preprocess | Tue Nov 25 12:38:16 2025 | Splitting nodes chr14
+Step: preprocess | Tue Nov 25 12:38:16 2025 | Splitting G1DMSO_pooled_allRes chr14
+Step: preprocess | Tue Nov 25 12:38:37 2025 | Splitting EpiG1dTAG_pooled_allRes chr14
+Step: preprocess | Tue Nov 25 12:38:58 2025 | Splitting nodes chr15
+Step: preprocess | Tue Nov 25 12:38:58 2025 | Splitting G1DMSO_pooled_allRes chr15
+Step: preprocess | Tue Nov 25 12:39:20 2025 | Splitting EpiG1dTAG_pooled_allRes chr15
+Step: preprocess | Tue Nov 25 12:39:41 2025 | Splitting nodes chr16
+Step: preprocess | Tue Nov 25 12:39:41 2025 | Splitting G1DMSO_pooled_allRes chr16
+Step: preprocess | Tue Nov 25 12:40:02 2025 | Splitting EpiG1dTAG_pooled_allRes chr16
+Step: preprocess | Tue Nov 25 12:40:23 2025 | Splitting nodes chr17
+Step: preprocess | Tue Nov 25 12:40:23 2025 | Splitting G1DMSO_pooled_allRes chr17
+Step: preprocess | Tue Nov 25 12:40:45 2025 | Splitting EpiG1dTAG_pooled_allRes chr17
+Step: preprocess | Tue Nov 25 12:41:05 2025 | Splitting nodes chr18
+Step: preprocess | Tue Nov 25 12:41:05 2025 | Splitting G1DMSO_pooled_allRes chr18
+Step: preprocess | Tue Nov 25 12:41:27 2025 | Splitting EpiG1dTAG_pooled_allRes chr18
+Step: preprocess | Tue Nov 25 12:41:48 2025 | Splitting nodes chr19
+Step: preprocess | Tue Nov 25 12:41:48 2025 | Splitting G1DMSO_pooled_allRes chr19
+Step: preprocess | Tue Nov 25 12:42:08 2025 | Splitting EpiG1dTAG_pooled_allRes chr19
+Step: preprocess | Tue Nov 25 12:42:29 2025 | Splitting nodes chr2
+Step: preprocess | Tue Nov 25 12:42:29 2025 | Splitting G1DMSO_pooled_allRes chr2
+Step: preprocess | Tue Nov 25 12:42:51 2025 | Splitting EpiG1dTAG_pooled_allRes chr2
+Step: preprocess | Tue Nov 25 12:43:13 2025 | Splitting nodes chr3
+Step: preprocess | Tue Nov 25 12:43:13 2025 | Splitting G1DMSO_pooled_allRes chr3
+Step: preprocess | Tue Nov 25 12:43:36 2025 | Splitting EpiG1dTAG_pooled_allRes chr3
+Step: preprocess | Tue Nov 25 12:43:57 2025 | Splitting nodes chr4
+Step: preprocess | Tue Nov 25 12:43:57 2025 | Splitting G1DMSO_pooled_allRes chr4
+Step: preprocess | Tue Nov 25 12:44:20 2025 | Splitting EpiG1dTAG_pooled_allRes chr4
+Step: preprocess | Tue Nov 25 12:44:42 2025 | Splitting nodes chr5
+Step: preprocess | Tue Nov 25 12:44:42 2025 | Splitting G1DMSO_pooled_allRes chr5
+Step: preprocess | Tue Nov 25 12:45:04 2025 | Splitting EpiG1dTAG_pooled_allRes chr5
+Step: preprocess | Tue Nov 25 12:45:25 2025 | Splitting nodes chr6
+Step: preprocess | Tue Nov 25 12:45:25 2025 | Splitting G1DMSO_pooled_allRes chr6
+Step: preprocess | Tue Nov 25 12:45:47 2025 | Splitting EpiG1dTAG_pooled_allRes chr6
+Step: preprocess | Tue Nov 25 12:46:08 2025 | Splitting nodes chr7
+Step: preprocess | Tue Nov 25 12:46:09 2025 | Splitting G1DMSO_pooled_allRes chr7
+Step: preprocess | Tue Nov 25 12:46:30 2025 | Splitting EpiG1dTAG_pooled_allRes chr7
+Step: preprocess | Tue Nov 25 12:46:52 2025 | Splitting nodes chr8
+Step: preprocess | Tue Nov 25 12:46:52 2025 | Splitting G1DMSO_pooled_allRes chr8
+Step: preprocess | Tue Nov 25 12:47:14 2025 | Splitting EpiG1dTAG_pooled_allRes chr8
+Step: preprocess | Tue Nov 25 12:47:35 2025 | Splitting nodes chr9
+Step: preprocess | Tue Nov 25 12:47:35 2025 | Splitting G1DMSO_pooled_allRes chr9
+Step: preprocess | Tue Nov 25 12:47:57 2025 | Splitting EpiG1dTAG_pooled_allRes chr9
+Step: preprocess | Tue Nov 25 12:48:19 2025 | Splitting nodes chrX
+Step: preprocess | Tue Nov 25 12:48:19 2025 | Splitting G1DMSO_pooled_allRes chrX
+Step: preprocess | Tue Nov 25 12:48:41 2025 | Splitting EpiG1dTAG_pooled_allRes chrX
+Step: preprocess | Tue Nov 25 12:49:02 2025 | Splitting nodes chrY
+Step: preprocess | Tue Nov 25 12:49:02 2025 | Splitting G1DMSO_pooled_allRes chrY
+Step: preprocess | Tue Nov 25 12:49:22 2025 | Splitting EpiG1dTAG_pooled_allRes chrY
+Step: concordance | Tue Nov 25 12:49:42 2025 | computing concordance between G1DMSO_pooled_allRes and EpiG1dTAG_pooled_allRes
+GenomeDISCO | Tue Nov 25 12:49:42 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 12:49:42 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chr1.gz
+GenomeDISCO | Tue Nov 25 12:49:42 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 12:49:42 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chr1.gz
+GenomeDISCO | Tue Nov 25 12:49:51 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chr1.gz
+GenomeDISCO | Tue Nov 25 12:49:59 2025 | Subsampling depth = 24407304.0
+GenomeDISCO | Tue Nov 25 12:50:07 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 12:50:08 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 12:50:08 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 12:50:08 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 12:51:29 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 12:53:24 2025 | done t=3 | score=0.677
+GenomeDISCO | Tue Nov 25 12:53:26 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 12:53:26 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chr10.gz
+GenomeDISCO | Tue Nov 25 12:53:26 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 12:53:26 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chr10.gz
+GenomeDISCO | Tue Nov 25 12:53:30 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chr10.gz
+GenomeDISCO | Tue Nov 25 12:53:35 2025 | Subsampling depth = 15094202.0
+GenomeDISCO | Tue Nov 25 12:53:39 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 12:53:39 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 12:53:39 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 12:53:40 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 12:54:11 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 12:54:49 2025 | done t=3 | score=0.681
+GenomeDISCO | Tue Nov 25 12:54:50 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 12:54:50 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chr11.gz
+GenomeDISCO | Tue Nov 25 12:54:50 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 12:54:50 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chr11.gz
+GenomeDISCO | Tue Nov 25 12:54:54 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chr11.gz
+GenomeDISCO | Tue Nov 25 12:54:58 2025 | Subsampling depth = 22241616.0
+GenomeDISCO | Tue Nov 25 12:55:02 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 12:55:02 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 12:55:02 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 12:55:03 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 12:55:34 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 12:56:07 2025 | done t=3 | score=0.692
+GenomeDISCO | Tue Nov 25 12:56:09 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 12:56:09 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chr12.gz
+GenomeDISCO | Tue Nov 25 12:56:09 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 12:56:09 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chr12.gz
+GenomeDISCO | Tue Nov 25 12:56:12 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chr12.gz
+GenomeDISCO | Tue Nov 25 12:56:16 2025 | Subsampling depth = 12431237.0
+GenomeDISCO | Tue Nov 25 12:56:19 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 12:56:20 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 12:56:20 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 12:56:20 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 12:56:42 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 12:57:09 2025 | done t=3 | score=0.674
+GenomeDISCO | Tue Nov 25 12:57:11 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 12:57:11 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chr13.gz
+GenomeDISCO | Tue Nov 25 12:57:11 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 12:57:11 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chr13.gz
+GenomeDISCO | Tue Nov 25 12:57:14 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chr13.gz
+GenomeDISCO | Tue Nov 25 12:57:18 2025 | Subsampling depth = 12935795.0
+GenomeDISCO | Tue Nov 25 12:57:21 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 12:57:22 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 12:57:22 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 12:57:22 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 12:57:46 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 12:58:14 2025 | done t=3 | score=0.669
+GenomeDISCO | Tue Nov 25 12:58:16 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 12:58:16 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chr14.gz
+GenomeDISCO | Tue Nov 25 12:58:16 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 12:58:16 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chr14.gz
+GenomeDISCO | Tue Nov 25 12:58:19 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chr14.gz
+GenomeDISCO | Tue Nov 25 12:58:23 2025 | Subsampling depth = 12831742.0
+GenomeDISCO | Tue Nov 25 12:58:26 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 12:58:27 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 12:58:27 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 12:58:27 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 12:58:51 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 12:59:19 2025 | done t=3 | score=0.676
+GenomeDISCO | Tue Nov 25 12:59:21 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 12:59:21 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chr15.gz
+GenomeDISCO | Tue Nov 25 12:59:21 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 12:59:21 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chr15.gz
+GenomeDISCO | Tue Nov 25 12:59:23 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chr15.gz
+GenomeDISCO | Tue Nov 25 12:59:26 2025 | Subsampling depth = 10902624.0
+GenomeDISCO | Tue Nov 25 12:59:29 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 12:59:29 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 12:59:29 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 12:59:29 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 12:59:45 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:00:04 2025 | done t=3 | score=0.680
+GenomeDISCO | Tue Nov 25 13:00:05 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 13:00:05 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chr16.gz
+GenomeDISCO | Tue Nov 25 13:00:05 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 13:00:05 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chr16.gz
+GenomeDISCO | Tue Nov 25 13:00:08 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chr16.gz
+GenomeDISCO | Tue Nov 25 13:00:10 2025 | Subsampling depth = 10645117.0
+GenomeDISCO | Tue Nov 25 13:00:13 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 13:00:13 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 13:00:13 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 13:00:13 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:00:27 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:00:42 2025 | done t=3 | score=0.686
+GenomeDISCO | Tue Nov 25 13:00:44 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 13:00:44 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chr17.gz
+GenomeDISCO | Tue Nov 25 13:00:44 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 13:00:44 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chr17.gz
+GenomeDISCO | Tue Nov 25 13:00:46 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chr17.gz
+GenomeDISCO | Tue Nov 25 13:00:48 2025 | Subsampling depth = 9485344.0
+GenomeDISCO | Tue Nov 25 13:00:50 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 13:00:51 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 13:00:51 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 13:00:51 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:01:02 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:01:14 2025 | done t=3 | score=0.638
+GenomeDISCO | Tue Nov 25 13:01:16 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 13:01:16 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chr18.gz
+GenomeDISCO | Tue Nov 25 13:01:16 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 13:01:16 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chr18.gz
+GenomeDISCO | Tue Nov 25 13:01:18 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chr18.gz
+GenomeDISCO | Tue Nov 25 13:01:20 2025 | Subsampling depth = 9688360.0
+GenomeDISCO | Tue Nov 25 13:01:22 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 13:01:22 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 13:01:22 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 13:01:23 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:01:34 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:01:46 2025 | done t=3 | score=0.675
+GenomeDISCO | Tue Nov 25 13:01:47 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 13:01:47 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chr19.gz
+GenomeDISCO | Tue Nov 25 13:01:47 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 13:01:47 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chr19.gz
+GenomeDISCO | Tue Nov 25 13:01:48 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chr19.gz
+GenomeDISCO | Tue Nov 25 13:01:49 2025 | Subsampling depth = 5499422.0
+GenomeDISCO | Tue Nov 25 13:01:50 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 13:01:50 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 13:01:50 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 13:01:50 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:01:54 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:01:57 2025 | done t=3 | score=0.665
+GenomeDISCO | Tue Nov 25 13:01:58 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 13:01:58 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chr2.gz
+GenomeDISCO | Tue Nov 25 13:01:58 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 13:01:58 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chr2.gz
+GenomeDISCO | Tue Nov 25 13:02:06 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chr2.gz
+GenomeDISCO | Tue Nov 25 13:02:13 2025 | Subsampling depth = 22280304.0
+GenomeDISCO | Tue Nov 25 13:02:20 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 13:02:21 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 13:02:21 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 13:02:22 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:03:29 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:05:02 2025 | done t=3 | score=0.670
+GenomeDISCO | Tue Nov 25 13:05:04 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 13:05:04 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chr3.gz
+GenomeDISCO | Tue Nov 25 13:05:04 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 13:05:04 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chr3.gz
+GenomeDISCO | Tue Nov 25 13:05:10 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chr3.gz
+GenomeDISCO | Tue Nov 25 13:05:16 2025 | Subsampling depth = 19551287.0
+GenomeDISCO | Tue Nov 25 13:05:22 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 13:05:22 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 13:05:22 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 13:05:23 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:06:13 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:07:20 2025 | done t=3 | score=0.657
+GenomeDISCO | Tue Nov 25 13:07:22 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 13:07:22 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chr4.gz
+GenomeDISCO | Tue Nov 25 13:07:22 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 13:07:22 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chr4.gz
+GenomeDISCO | Tue Nov 25 13:07:27 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chr4.gz
+GenomeDISCO | Tue Nov 25 13:07:32 2025 | Subsampling depth = 17244035.0
+GenomeDISCO | Tue Nov 25 13:07:38 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 13:07:38 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 13:07:38 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 13:07:39 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:08:20 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:09:16 2025 | done t=3 | score=0.668
+GenomeDISCO | Tue Nov 25 13:09:17 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 13:09:17 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chr5.gz
+GenomeDISCO | Tue Nov 25 13:09:18 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 13:09:18 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chr5.gz
+GenomeDISCO | Tue Nov 25 13:09:23 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chr5.gz
+GenomeDISCO | Tue Nov 25 13:09:28 2025 | Subsampling depth = 16860102.0
+GenomeDISCO | Tue Nov 25 13:09:33 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 13:09:34 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 13:09:34 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 13:09:34 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:10:15 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:11:08 2025 | done t=3 | score=0.678
+GenomeDISCO | Tue Nov 25 13:11:09 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 13:11:09 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chr6.gz
+GenomeDISCO | Tue Nov 25 13:11:09 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 13:11:09 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chr6.gz
+GenomeDISCO | Tue Nov 25 13:11:15 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chr6.gz
+GenomeDISCO | Tue Nov 25 13:11:20 2025 | Subsampling depth = 17501710.0
+GenomeDISCO | Tue Nov 25 13:11:25 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 13:11:26 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 13:11:26 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 13:11:26 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:12:11 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:13:07 2025 | done t=3 | score=0.682
+GenomeDISCO | Tue Nov 25 13:13:08 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 13:13:08 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chr7.gz
+GenomeDISCO | Tue Nov 25 13:13:08 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 13:13:08 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chr7.gz
+GenomeDISCO | Tue Nov 25 13:13:13 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chr7.gz
+GenomeDISCO | Tue Nov 25 13:13:17 2025 | Subsampling depth = 14898133.0
+GenomeDISCO | Tue Nov 25 13:13:22 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 13:13:22 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 13:13:22 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 13:13:22 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:13:53 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:14:36 2025 | done t=3 | score=0.667
+GenomeDISCO | Tue Nov 25 13:14:38 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 13:14:38 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chr8.gz
+GenomeDISCO | Tue Nov 25 13:14:38 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 13:14:38 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chr8.gz
+GenomeDISCO | Tue Nov 25 13:14:42 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chr8.gz
+GenomeDISCO | Tue Nov 25 13:14:46 2025 | Subsampling depth = 14450700.0
+GenomeDISCO | Tue Nov 25 13:14:50 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 13:14:50 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 13:14:50 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 13:14:51 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:15:21 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:15:55 2025 | done t=3 | score=0.669
+GenomeDISCO | Tue Nov 25 13:15:57 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 13:15:57 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chr9.gz
+GenomeDISCO | Tue Nov 25 13:15:57 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 13:15:57 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chr9.gz
+GenomeDISCO | Tue Nov 25 13:16:01 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chr9.gz
+GenomeDISCO | Tue Nov 25 13:16:05 2025 | Subsampling depth = 14109377.0
+GenomeDISCO | Tue Nov 25 13:16:09 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 13:16:09 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 13:16:09 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 13:16:10 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:16:36 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:17:07 2025 | done t=3 | score=0.685
+GenomeDISCO | Tue Nov 25 13:17:08 2025 | :::::::::: Starting reproducibility analysis
+GenomeDISCO | Tue Nov 25 13:17:08 2025 | processing: Loading genomic regions from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/nodes/nodes.chrX.gz
+GenomeDISCO | Tue Nov 25 13:17:08 2025 | Loading contact maps
+GenomeDISCO | Tue Nov 25 13:17:08 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/G1DMSO_pooled_allRes/G1DMSO_pooled_allRes.chrX.gz
+GenomeDISCO | Tue Nov 25 13:17:12 2025 | processing: Loading interaction data from /athena/apostoloulab/scratch/ukl4001/data/GenomeDSICO/comparison_61/data/edges/EpiG1dTAG_pooled_allRes/EpiG1dTAG_pooled_allRes.chrX.gz
+GenomeDISCO | Tue Nov 25 13:17:16 2025 | Subsampling depth = 7822895.0
+GenomeDISCO | Tue Nov 25 13:17:20 2025 | Normalizing with sqrtvc
+GenomeDISCO | Tue Nov 25 13:17:21 2025 | Distance dependence analysis
+GenomeDISCO | Tue Nov 25 13:17:21 2025 | Computing reproducibility score
+GenomeDISCO | Tue Nov 25 13:17:21 2025 | done t=1 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:17:42 2025 | done t=2 (not included in score calculation)
+GenomeDISCO | Tue Nov 25 13:18:23 2025 | done t=3 | score=0.629
+
+Step: summary | Tue Nov 25 13:18:25 2025
