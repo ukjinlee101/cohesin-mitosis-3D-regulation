@@ -934,6 +934,240 @@ fwrite(data, here(commonLoopDir, "loopScore_TjianChromo.tsv"),
 
 ```
 
+#### Comparing  probability based tools
+```{r}
+data.hicdcp <- fread(here(commonLoopDir, "loopScore_hicdcp.tsv")) %>%
+  dplyr::mutate(AnnoGroup = case_when(
+      Anno %in% c("P-P", "P-E", "E-E") ~ "Reg (P-P, P-E, E-E)",
+      
+      Anno %in% c("P-S", "E-S") ~ "Reg/Str mixed",
+      Anno %in% c("P-SP", "P-SE", "E-SP", "E-SE") ~ "Reg/Str mixed",
+      Anno %in% c("SP-SP", "SP-SE", "SE-SE") ~ "Reg/Str mixed",
+      Anno %in% c("SP-S", "SE-S") ~ "Reg/Str mixed",
+      
+      Anno %in% c("S-S", "S-X") ~ "Str (S-S, S-X)",
+      Anno %in% c("P-X", "E-X") ~ "Reg-Other",
+      Anno %in% c("SP-X", "SE-X") ~ "StrReg-Other",
+      Anno %in% c("X-X") ~ "Other",
+      TRUE ~ NA
+    ))
+data.fithic <- fread(here(commonLoopDir, "loopScore_fithic.tsv")) %>%
+  dplyr::mutate(AnnoGroup = case_when(
+      Anno %in% c("P-P", "P-E", "E-E") ~ "Reg (P-P, P-E, E-E)",
+      
+      Anno %in% c("P-S", "E-S") ~ "Reg/Str mixed",
+      Anno %in% c("P-SP", "P-SE", "E-SP", "E-SE") ~ "Reg/Str mixed",
+      Anno %in% c("SP-SP", "SP-SE", "SE-SE") ~ "Reg/Str mixed",
+      Anno %in% c("SP-S", "SE-S") ~ "Reg/Str mixed",
+      
+      Anno %in% c("S-S", "S-X") ~ "Str (S-S, S-X)",
+      Anno %in% c("P-X", "E-X") ~ "Reg-Other",
+      Anno %in% c("SP-X", "SE-X") ~ "StrReg-Other",
+      Anno %in% c("X-X") ~ "Other",
+      TRUE ~ NA
+    ))
+
+
+
+############################
+data <- data.hicdcp %>% dplyr::select(AnnoGroup, ooe_DMSO, ooe_dTAG)  %>%
+  dplyr::mutate(ooe_fc = ooe_dTAG/ooe_DMSO)
+# ggplot(data, aes(x = ooe_DMSO, y = ooe_dTAG)) + geom_point() + facet_wrap(~AnnoGroup) + coord_fixed() + scale_x_log10() + scale_y_log10() + geom_abline(intercept = 0, slope = 1) +geom_hex(bins = 100) + scale_fill_viridis_c()
+
+
+# data.long <- data %>% pivot_longer(cols = c(2, 3))
+#  
+# ggplot(data.long, aes(x = name, y = value)) + facet_wrap(~AnnoGroup) + geom_violin() + scale_y_log10() + geom_boxplot()
+
+
+data_all <- data %>%
+  mutate(AnnoGroup = "All")   # new combined panel
+
+data2 <- bind_rows(data, data_all)
+data2$AnnoGroup <- factor(data2$AnnoGroup, 
+                          levels = c("All",
+                                     "Reg (P-P, P-E, E-E)",
+                                     "Reg/Str mixed",
+                                     "Str (S-S, S-X)",
+                                     "Reg-Other",
+                                     "StrReg-Other",
+                                     "Other"
+                                     ))
+df_pct <- data2 %>%
+  group_by(AnnoGroup) %>%
+  summarize(
+    pct_below1 = mean(ooe_fc < 2**(-0.5), na.rm = TRUE) * 100,
+    median_fc  = median(ooe_fc, na.rm = TRUE)
+  )
+p <- ggplot(data2, aes(x = ooe_fc)) + geom_histogram(bins = 150) + scale_x_log10(limits = c(0.05, 7)) + facet_wrap(~AnnoGroup, nrow = 2, scales = "free")  + theme_classic() +
+  geom_vline(xintercept = c(2**(-0.5), 2**(0.5)), color = "red", size = lineThick*mmToLineUnit,
+               lineend = "square") +
+    geom_vline(xintercept = 2**(0), color = "red", linetype = "dashed", size = lineThick*mmToLineUnit,
+               lineend = "square") +
+
+  geom_vline(
+    data = df_pct,
+    aes(xintercept = median_fc),
+    linetype = "dotted",
+    color = "white", size = lineThick*mmToLineUnit,
+               lineend = "square"
+  )  +
+  geom_text(
+    data = df_pct,
+    aes(x = 0.05, y = Inf, 
+        label = paste0(round(pct_below1, 1), "%\nDOWN")),
+    vjust = 1.5,
+    hjust = 0,
+    inherit.aes = FALSE,
+    size = fontSizeM*ptToMM,
+        family = fontType,
+        color = "#000000"
+  ) +  
+ylab("Count") + xlab("Fold change (G1_ESC_dTAG vs G1_ESC_DMSO) of observed over expected (OOE)") +
+    theme(
+      legend.position = "none",
+      strip.text = element_text(
+      size = fontSizeM,       # Or use a multiplier like 'fontSizeS * 1.2'
+      family = fontType,
+      color = "black"
+    ),
+      plot.title = element_text(
+        hjust = 0.5,
+        size = fontSizeS,
+        family = fontType
+      ),
+      axis.title = element_text(
+        size = fontSizeM,
+        family = fontType,
+        color = "#000000"
+      ),
+      axis.text = element_text(
+        size = fontSizeS,
+        family = fontType,
+        color = "#000000"
+      ),
+      axis.line = element_line(
+        color = "#000000",
+        size = lineThick*mmToLineUnit,
+        lineend = "square"
+      ),
+      axis.ticks = element_line(
+        color = "#000000",
+        size = lineThick*mmToLineUnit,
+        lineend = "square"
+      ),
+      panel.background = element_rect(fill = "transparent"),
+    )
+
+fileName <- here(figDir, "histogram_ooe_fc_hicdcp")
+width <- panelSize(6)*mmToInch
+height <- panelSize(2)*mmToInch
+svglite(paste0(fileName, ".svg"),  height = height, width = width)
+print(p)
+dev.off()
+
+
+
+############################
+data <- data.fithic %>% dplyr::select(AnnoGroup, ooe_DMSO, ooe_dTAG)  %>%
+  dplyr::mutate(ooe_fc = ooe_dTAG/ooe_DMSO)
+# ggplot(data, aes(x = ooe_DMSO, y = ooe_dTAG)) + geom_point() + facet_wrap(~AnnoGroup) + coord_fixed() + scale_x_log10() + scale_y_log10() + geom_abline(intercept = 0, slope = 1) +geom_hex(bins = 100) + scale_fill_viridis_c()
+
+
+# data.long <- data %>% pivot_longer(cols = c(2, 3))
+#  
+# ggplot(data.long, aes(x = name, y = value)) + facet_wrap(~AnnoGroup) + geom_violin() + scale_y_log10() + geom_boxplot()
+
+
+data_all <- data %>%
+  mutate(AnnoGroup = "All")   # new combined panel
+
+data2 <- bind_rows(data, data_all)
+data2$AnnoGroup <- factor(data2$AnnoGroup, 
+                          levels = c("All",
+                                     "Reg (P-P, P-E, E-E)",
+                                     "Reg/Str mixed",
+                                     "Str (S-S, S-X)",
+                                     "Reg-Other",
+                                     "StrReg-Other",
+                                     "Other"
+                                     ))
+df_pct <- data2 %>%
+  group_by(AnnoGroup) %>%
+  summarize(
+    pct_below1 = mean(ooe_fc < 2**(-0.5), na.rm = TRUE) * 100,
+    median_fc  = median(ooe_fc, na.rm = TRUE)
+  )
+p <- ggplot(data2, aes(x = ooe_fc)) + geom_histogram(bins = 150) + scale_x_log10(limits = c(0.05, 7)) + facet_wrap(~AnnoGroup, nrow = 2, scales = "free")  + theme_classic() +
+  geom_vline(xintercept = c(2**(-0.5), 2**(0.5)), color = "red", size = lineThick*mmToLineUnit,
+               lineend = "square") +
+    geom_vline(xintercept = 2**(0), color = "red", linetype = "dashed", size = lineThick*mmToLineUnit,
+               lineend = "square") +
+
+  geom_vline(
+    data = df_pct,
+    aes(xintercept = median_fc),
+    linetype = "dotted",
+    color = "white", size = lineThick*mmToLineUnit,
+               lineend = "square"
+  )  +
+  geom_text(
+    data = df_pct,
+    aes(x = 0.05, y = Inf, 
+        label = paste0(round(pct_below1, 1), "%\nDOWN")),
+    vjust = 1.5,
+    hjust = 0,
+    inherit.aes = FALSE,
+    size = fontSizeM*ptToMM,
+        family = fontType,
+        color = "#000000"
+  ) +  
+ylab("Count") + xlab("Fold change (G1_ESC_dTAG vs G1_ESC_DMSO) of observed over expected (OOE)") +
+    theme(
+      legend.position = "none",
+      strip.text = element_text(
+      size = fontSizeM,       # Or use a multiplier like 'fontSizeS * 1.2'
+      family = fontType,
+      color = "black"
+    ),
+      plot.title = element_text(
+        hjust = 0.5,
+        size = fontSizeS,
+        family = fontType
+      ),
+      axis.title = element_text(
+        size = fontSizeM,
+        family = fontType,
+        color = "#000000"
+      ),
+      axis.text = element_text(
+        size = fontSizeS,
+        family = fontType,
+        color = "#000000"
+      ),
+      axis.line = element_line(
+        color = "#000000",
+        size = lineThick*mmToLineUnit,
+        lineend = "square"
+      ),
+      axis.ticks = element_line(
+        color = "#000000",
+        size = lineThick*mmToLineUnit,
+        lineend = "square"
+      ),
+      panel.background = element_rect(fill = "transparent"),
+    )
+
+fileName <- here(figDir, "histogram_ooe_fc_fithic")
+width <- panelSize(6)*mmToInch
+height <- panelSize(2)*mmToInch
+svglite(paste0(fileName, ".svg"),  height = height, width = width)
+print(p)
+dev.off()
+
+```
+
+
 # ANALYSIS
 ## [1] Comparing loops
 ### Common stuffs
@@ -1025,6 +1259,244 @@ for(expandSize in c(5000, 10000, 25000)){
   print(p)
   dev.off()
 }
+```
+#### HiCDC+, FitHiC
+```{r}
+for(expandSize in c(5000, 10000, 25000)){
+  gi1 <- expand_anchor(make_gi(loop_chromo))
+  gi2 <- expand_anchor(make_gi(loop_hicdcp))
+  gi3 <- expand_anchor(make_gi(loop_fithic))
+  
+  gi_all <- c(gi1, gi2, gi3)
+  
+  # 4) determine membership via Chebyshev distance = 1 bin(10 kb)
+  in1 <- overlapsAny(gi_all, gi1,    maxgap=expandSize, type="equal")
+  in2 <- overlapsAny(gi_all, gi2,    maxgap=expandSize, type="equal")
+  in3 <- overlapsAny(gi_all, gi3,    maxgap=expandSize, type="equal")
+  
+  membership_df <- tibble(
+    loop = seq_along(gi_all),
+    set1 = in1,
+    set2 = in2,
+    set3 = in3
+  )
+  
+  membership_df <- membership_df %>%
+    rename(
+      Chromosight     = set1,
+      HiCDCP     = set2,
+      FitHiC = set3
+    )
+  
+  # 5) UpSet plot of all combinations
+  p <- upset(
+    membership_df,
+    intersect = c("Chromosight","HiCDCP","FitHiC"),
+    name = "",
+    base_annotations = list(
+      'Loop #' = intersection_size(text = list(size = fontSizeS*ptToMM,
+                                               family = fontType,
+                                               color = "#000000"))
+    ),
+    matrix = intersection_matrix(
+      geom = geom_point(size = 1.2)                         # shrink dots
+    ),
+    themes = upset_default_themes(
+      text = element_text(
+        size = fontSizeS,
+        family = fontType,
+        color = "#000000"
+      ),
+      axis.text.x = element_text(
+        size = fontSizeS,
+        family = fontType,
+        color = "#000000"
+      ),
+      axis.text.y = element_text(
+        size = fontSizeS,
+        family = fontType,
+        color = "#000000"
+      )
+    )
+  ) + ggtitle(paste0(expandSize, "bp expanded, 1 Chebychev dist")) +
+    theme(
+      text = element_text(
+        size = fontSizeS,
+        family = fontType,
+        color = "#000000"
+      ),
+      legend.position = "none",
+      plot.title = element_text(
+        hjust = 0.5,
+        size = fontSizeS,
+        family = fontType,
+        color = "#000000"
+        
+      ),
+      axis.title = element_text(
+        size = fontSizeS,
+        family = fontType,
+        color = "#000000"
+      ),
+      axis.text = element_text(
+        size = fontSizeS,
+        family = fontType,
+        color = "#000000"
+      ),
+      axis.line = element_line(
+        color = "#000000",
+        size = lineThick*mmToLineUnit,
+        lineend = "square"
+      ),
+      axis.ticks = element_line(
+        color = "#000000",
+        size = lineThick*mmToLineUnit,
+        lineend = "square"
+      ),
+      panel.background = element_rect(fill = "transparent"),
+    )
+  
+  fileName <- here(figDir, paste0("offSet3_", expandSize, "bp_expanded"))
+  width <- panelSize(2.4)*mmToInch
+  height <- panelSize(1.7)*mmToInch  
+  svglite(paste0(fileName, ".svg"), width = width, height = height)
+  print(p)
+  dev.off()
+}
+
+### Extracting specific loops
+expandSize <- 25000
+gi1 <- expand_anchor(make_gi(loop_chromo))
+gi2 <- expand_anchor(make_gi(loop_hicdcp))
+gi3 <- expand_anchor(make_gi(loop_fithic))
+
+gi_all <- c(gi1, gi2, gi3)
+
+# 4) determine membership via Chebyshev distance = 1 bin(10 kb)
+in1 <- overlapsAny(gi_all, gi1,    maxgap=expandSize, type="equal")
+in2 <- overlapsAny(gi_all, gi2,    maxgap=expandSize, type="equal")
+in3 <- overlapsAny(gi_all, gi3,    maxgap=expandSize, type="equal")
+
+membership_df <- tibble(
+  loop = seq_along(gi_all),
+  set1 = in1,
+  set2 = in2,
+  set3 = in3
+)
+
+membership_df <- membership_df %>%
+  rename(
+    Chromosight     = set1,
+    HiCDCP     = set2,
+    FitHiC = set3
+  )
+
+chromosight_only_idx <- membership_df %>%
+  filter(Chromosight & !HiCDCP & !FitHiC) %>%
+  pull(loop)
+gi_chromosight_only <- gi_all[chromosight_only_idx]
+fwrite(as_data_frame(gi_chromosight_only) %>% dplyr::select(c(1, 2, 3, 6, 7, 8)),
+       here(commonLoopDir, "loopOverlap_Chromosight_unique.bedpe"), sep = "\t", col.names = FALSE)
+
+chromosight_only_idx <- membership_df %>%
+  filter(!Chromosight & HiCDCP & !FitHiC) %>%
+  pull(loop)
+gi_chromosight_only <- gi_all[chromosight_only_idx]
+fwrite(as_data_frame(gi_chromosight_only) %>% dplyr::select(c(1, 2, 3, 6, 7, 8)),
+       here(commonLoopDir, "loopOverlap_HiCDCP_unique.bedpe"), sep = "\t", col.names = FALSE)
+
+chromosight_only_idx <- membership_df %>%
+  filter(!Chromosight & !HiCDCP & FitHiC) %>%
+  pull(loop)
+gi_chromosight_only <- gi_all[chromosight_only_idx]
+fwrite(as_data_frame(gi_chromosight_only) %>% dplyr::select(c(1, 2, 3, 6, 7, 8)),
+       here(commonLoopDir, "loopOverlap_FitHiC_unique.bedpe"), sep = "\t", col.names = FALSE)
+
+
+chromosight_only_idx <- membership_df %>%
+  filter(!Chromosight & HiCDCP & FitHiC) %>%
+  pull(loop)
+gi_chromosight_only <- gi_all[chromosight_only_idx]
+fwrite(as_data_frame(gi_chromosight_only) %>% dplyr::select(c(1, 2, 3, 6, 7, 8)),
+       here(commonLoopDir, "loopOverlap_HiCDCP_FitHiC.bedpe"), sep = "\t", col.names = FALSE)
+
+chromosight_only_idx <- membership_df %>%
+  filter(Chromosight & HiCDCP & !FitHiC) %>%
+  pull(loop)
+gi_chromosight_only <- gi_all[chromosight_only_idx]
+fwrite(as_data_frame(gi_chromosight_only) %>% dplyr::select(c(1, 2, 3, 6, 7, 8)),
+       here(commonLoopDir, "loopOverlap_Chromosight_HiCDCP.bedpe"), sep = "\t", col.names = FALSE)
+
+chromosight_only_idx <- membership_df %>%
+  filter(Chromosight & !HiCDCP & FitHiC) %>%
+  pull(loop)
+gi_chromosight_only <- gi_all[chromosight_only_idx]
+fwrite(as_data_frame(gi_chromosight_only) %>% dplyr::select(c(1, 2, 3, 6, 7, 8)),
+       here(commonLoopDir, "loopOverlap_Chromosight_FitHiC.bedpe"), sep = "\t", col.names = FALSE)
+
+chromosight_only_idx <- membership_df %>%
+  filter(Chromosight & HiCDCP & FitHiC) %>%
+  pull(loop)
+gi_chromosight_only <- gi_all[chromosight_only_idx]
+fwrite(as_data_frame(gi_chromosight_only) %>% dplyr::select(c(1, 2, 3, 6, 7, 8)),
+       here(commonLoopDir, "loopOverlap_Chromosight_HiCDCP_FitHiC.bedpe"), sep = "\t", col.names = FALSE)
+
+
+chromosight_only_idx <- membership_df %>%
+  filter((Chromosight & HiCDCP & FitHiC) |
+          (Chromosight & !HiCDCP & FitHiC) |
+           (Chromosight & HiCDCP & !FitHiC) ) %>%
+  pull(loop)
+gi_chromosight_only <- gi_all[chromosight_only_idx]
+fwrite(as_data_frame(gi_chromosight_only) %>% dplyr::select(c(1, 2, 3, 6, 7, 8)),
+       here(commonLoopDir, "loopOverlap_Chromosight_HiCDCP_FitHiC.bedpe"), sep = "\t", col.names = FALSE)
+
+
+#####
+
+### Extracting specific loops
+expandSize <- 25000
+gi1 <- expand_anchor(make_gi(loop_chromo))
+gi2 <- expand_anchor(make_gi(loop_hicdcp))
+gi3 <- expand_anchor(make_gi(loop_fithic))
+
+gi_all <- c(gi1, gi2, gi3)
+
+# 4) determine membership via Chebyshev distance = 1 bin(10 kb)
+in1 <- overlapsAny(gi1, c(gi2, gi3),    maxgap=expandSize, type="equal")
+
+gi1_raw <- (make_gi(loop_chromo))
+gi_chromosight_unique <- gi1_raw[!in1]
+gi_chromosight_overlap <- gi1_raw[in1]
+
+fwrite(as_data_frame(gi_chromosight_unique) %>% dplyr::select(c(1, 2, 3, 6, 7, 8)),
+       here(commonLoopDir, "loopOverlapChromosight_unique.bedpe"), sep = "\t", col.names = FALSE)
+fwrite(as_data_frame(gi_chromosight_overlap) %>% dplyr::select(c(1, 2, 3, 6, 7, 8)),
+       here(commonLoopDir, "loopOverlapChromosight_overlap.bedpe"), sep = "\t", col.names = FALSE)
+
+
+in1 <- overlapsAny(gi2, gi1,    maxgap=expandSize, type="equal")
+
+gi2_raw <- (make_gi(loop_hicdcp))
+gi_chromosight_unique <- gi2_raw[!in1]
+gi_chromosight_overlap <- gi2_raw[in1]
+
+fwrite(as_data_frame(gi_chromosight_unique) %>% dplyr::select(c(1, 2, 3, 6, 7, 8)),
+       here(commonLoopDir, "loopOverlapHiCDCP_unique.bedpe"), sep = "\t", col.names = FALSE)
+fwrite(as_data_frame(gi_chromosight_overlap) %>% dplyr::select(c(1, 2, 3, 6, 7, 8)),
+       here(commonLoopDir, "loopOverlapHiCDCP_overlap.bedpe"), sep = "\t", col.names = FALSE)
+
+in1 <- overlapsAny(gi3, gi1,    maxgap=expandSize, type="equal")
+
+gi3_raw <- (make_gi(loop_fithic))
+gi_chromosight_unique <- gi3_raw[!in1]
+gi_chromosight_overlap <- gi3_raw[in1]
+
+fwrite(as_data_frame(gi_chromosight_unique) %>% dplyr::select(c(1, 2, 3, 6, 7, 8)),
+       here(commonLoopDir, "loopOverlapFitHiC_unique.bedpe"), sep = "\t", col.names = FALSE)
+fwrite(as_data_frame(gi_chromosight_overlap) %>% dplyr::select(c(1, 2, 3, 6, 7, 8)),
+       here(commonLoopDir, "loopOverlapFitHiC_overlap.bedpe"), sep = "\t", col.names = FALSE)
+
 ```
 #### Tjian
 ```{r}
@@ -1405,6 +1877,100 @@ p <- ggplot(data_long, aes(x = name, y = value, fill = AnnoGroup)) +
 fileName <- paste0("Barplot_loopAnno_Chromosight")
 width <- panelSize(1.75)*mmToInch
 height <- panelSize(1.75)*mmToInch
+svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
+print(p)
+dev.off()
+
+#### Subdivision based on common or not
+loop_chromo_unique <- fread(here(commonLoopDir, "loopOverlapChromosight_unique.bedpe")) %>%
+  dplyr::mutate(id = paste(V1, V2, V3, V4, V5, V6, sep = "_"))
+loop_chromo_unique <- loop_chromo %>% dplyr::filter(id %in% loop_chromo_unique$id)
+loop_chromo_common <- loop_chromo %>% dplyr::filter(!(id %in% loop_chromo_unique$id))
+
+
+loop_fithic_unique <- fread(here(commonLoopDir, "loopOverlapFitHiC_unique.bedpe")) %>%
+  dplyr::mutate(id = paste(V1, V2, V3, V4, V5, V6, sep = "_"))
+loop_fithic_unique <- loop_fithic %>% dplyr::filter(id %in% loop_fithic_unique$id)
+loop_fithic_common <- loop_fithic %>% dplyr::filter(!(id %in% loop_fithic_unique$id))
+
+
+loop_hicdcp_unique <- fread(here(commonLoopDir, "loopOverlapHiCDCP_unique.bedpe")) %>%
+  dplyr::mutate(id = paste(V1, V2, V3, V4, V5, V6, sep = "_"))
+loop_hicdcp_unique <- loop_hicdcp %>% dplyr::filter(id %in% loop_hicdcp_unique$id)
+loop_hicdcp_common <- loop_hicdcp %>% dplyr::filter(!(id %in% loop_hicdcp_unique$id))
+
+data <- make_table(loop_chromo, "chromosight") %>%
+  dplyr::full_join(make_table(loop_hicdcp, "hicdcp"), by = c("AnnoGroup")) %>%
+  dplyr::full_join(make_table(loop_fithic, "fithic"), by = c("AnnoGroup")) %>%
+  dplyr::full_join(make_table(loop_chromo_unique, "chromosight_unique"), by = c("AnnoGroup")) %>%
+  dplyr::full_join(make_table(loop_fithic_unique, "fithic_unique"), by = c("AnnoGroup")) %>%
+  dplyr::full_join(make_table(loop_hicdcp_unique, "hicdcp_unique"), by = c("AnnoGroup"))  %>%
+  dplyr::full_join(make_table(loop_chromo_common, "chromosight_common"), by = c("AnnoGroup")) %>%
+  dplyr::full_join(make_table(loop_fithic_common, "fithic_common"), by = c("AnnoGroup")) %>%
+  dplyr::full_join(make_table(loop_hicdcp_common, "hicdcp_common"), by = c("AnnoGroup"))
+
+
+data_long <- data %>% pivot_longer(cols = c("chromosight", "chromosight_common", "chromosight_unique",
+                                            "fithic", "fithic_common", "fithic_unique",
+                                            "hicdcp", "hicdcp_common", "hicdcp_unique"))
+data_long$name <- factor(data_long$name, levels = c("chromosight", "chromosight_common", "chromosight_unique",
+                                            "fithic", "fithic_common", "fithic_unique",
+                                            "hicdcp", "hicdcp_common", "hicdcp_unique"))
+
+p <- ggplot(data_long, aes(x = name, y = value, fill = AnnoGroup)) +
+  geom_bar(position="fill", stat="identity") +
+  labs(
+    x = NULL,         # Remove x-axis title
+    y = "Ratio"       # Change y-axis title
+  ) +
+  theme(
+    axis.title = element_text(
+      size = fontSizeM, family = fontType, color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeM, family = fontType, color = "#000000"
+    ),
+    axis.text.x = element_text(
+      angle = 45, hjust = 1,          # Rotate x labels
+      size = fontSizeM, family = fontType, color = "#000000"
+    ),
+    axis.text.y = element_text(
+      size = fontSizeS, family = fontType, color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000", size = lineThick * mmToLineUnit, lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000", size = lineThick * mmToLineUnit, lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+    legend.text = element_text(family = fontType, size = fontSizeS),
+    legend.title = element_text(family = fontType, size = fontSizeS)
+  ) + 
+  annotate(
+    "text", x = 1, y = 1,
+    label = paste0("n = ", nrow(loop_chromo)),
+    color = "black", hjust = 0, vjust = -1, size = fontSizeS*ptToMM, angle = 45
+  ) + 
+  annotate(
+    "text", x = 2, y = 1,
+    label = paste0("n = ", nrow(loop_fithic)),
+    color = "black", hjust = 0, vjust = -1, size = fontSizeS*ptToMM, angle = 45
+  )+ 
+  annotate(
+    "text", x = 3, y = 1,
+    label = paste0("n = ", nrow(loop_hicdcp)),
+    color = "black", hjust = 0, vjust = -1, size = fontSizeS*ptToMM, angle = 45
+  )+   guides(
+    fill = guide_legend(
+      keywidth = 0.2,  # Adjust the width of the legend keys
+      keyheight = 0.2  # Adjust the height of the legend keys
+    )
+  )
+
+fileName <- paste0("Barplot_loopAnno_comparison_uniqueCommon")
+width <- panelSize(3)*mmToInch
+height <- panelSize(2)*mmToInch
 svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
 print(p)
 dev.off()
@@ -3431,6 +3997,15 @@ dev.off()
 commonLoopDir <- here("../data/loop_analysis")
 figDir <- here("../figure/loop_analysis")
 
+loop_chromo_unique <- fread(here(commonLoopDir, "loopOverlapChromosight_unique.bedpe")) %>%
+  dplyr::mutate(id = paste(V1, V2, V3, V4, V5, V6, sep = "_"))
+
+loop_fithic_unique <- fread(here(commonLoopDir, "loopOverlapFitHiC_unique.bedpe")) %>%
+  dplyr::mutate(id = paste(V1, V2, V3, V4, V5, V6, sep = "_"))
+
+loop_hicdcp_unique <- fread(here(commonLoopDir, "loopOverlapHiCDCP_unique.bedpe")) %>%
+  dplyr::mutate(id = paste(V1, V2, V3, V4, V5, V6, sep = "_"))
+
 pseudo_ooe <- 0.01
 
 data <- fread(here(commonLoopDir, "loopScore_chromosight.tsv")) %>%
@@ -3732,6 +4307,1151 @@ svglite(here(figDir, paste0(fileName, "_histogram.svg")),
 print(p3)
 dev.off()
 
+
+################################################################################
+# Import annotation
+commonLoopDir <- here("../data/loop_analysis")
+figDir <- here("../figure/loop_analysis")
+
+pseudo_ooe <- 0.01
+
+data <- fread(here(commonLoopDir, "loopScore_chromosight.tsv")) %>%
+  dplyr::filter(id %in% loop_chromo_unique$id) %>%
+  dplyr::filter(!is.na(ooe_DMSO), !is.na(ooe_dTAG)) %>%
+  dplyr::mutate(
+    x_ooe = if_else(ooe_DMSO == 0, pseudo_ooe, ooe_DMSO),
+    y_ooe = if_else(ooe_dTAG == 0, pseudo_ooe, ooe_dTAG),
+    fc    = log2(y_ooe / x_ooe),
+    distance = start2 - start1,
+    dist_bin = cut(
+      distance,
+      breaks = c(seq(0, 1e6, by = 1e5), Inf),
+      labels = c(
+        paste0(seq(0, 9e5, 1e5) / 1e3, "-", seq(1e5, 1e6, 1e5) / 1e3, "kb"),
+        ">1Mb"
+      ),
+      right = FALSE
+    )) %>%
+  dplyr::select(distance, dist_bin, fc, Anno)
+
+data <- data %>% dplyr::mutate(
+  group = case_when(
+    Anno %in% c("P-P", "P-E", "E-E") ~ "reg_reg",
+    Anno %in% c("P-SP", "P-SE", "E-SP", "E-SE") ~ "reg_strReg",
+    Anno %in% c("P-S", "E-S") ~ "reg_str",
+    Anno %in% c("SP-SP", "SP-SE", "SE-SE") ~ "strReg_strReg",
+    Anno %in% c("SP-S", "SE-S") ~ "strReg_str",
+    Anno %in% c("P-X", "E-X") ~ "reg_other",
+    Anno %in% c("SP-X", "SE-X") ~ "strReg_other",
+    Anno %in% c("S-S", "S-X") ~ "str",
+    Anno %in% c("X-X") ~ "other",
+    
+    TRUE ~ "XXX")
+) %>%
+  dplyr::mutate(group2 = case_when(
+    Anno == "P-P" ~ "P-P",
+    Anno == "P-E" ~ "P-E",
+    Anno == "E-E" ~ "E-E",
+    # group %in% c("reg_reg") ~ "reg",
+    group %in% c("reg_strReg", "reg_str") ~ "mixed",
+    group %in% c("strReg_strReg", "strReg_str", "strReg_other") ~ "mixed",
+    group %in% c("str") ~ "str",
+    TRUE ~ "XXXXX"
+  ))
+
+
+
+
+
+data$group2 <- factor(data$group2, levels = c("P-P", "P-E", "E-E", "mixed", "str"))
+
+
+palnpg <- pal_npg()(10)
+
+p0 <- ggplot(
+  data %>% dplyr::filter(group2 %in% c("P-P", "P-E", "E-E", "mixed", "str"),
+                         distance < 550000),
+  aes(x = distance, y = fc, fill = group2, color = group2)
+) +
+  scale_fill_manual(values =c(palnpg[8], palnpg[1], palnpg[5], palnpg[2], palnpg[3])) +
+  scale_color_manual(values =c(palnpg[8], palnpg[1], palnpg[5], palnpg[2], palnpg[3])) +
+  
+  # remove outliers with outlier.shape = NA (there is no "outliers" argument)
+  # geom_boxplot(outlier.shape = NA) +
+    geom_smooth(show.legend = TRUE, se = TRUE,
+              size = lineThick*mmToLineUnit,
+              lineend = "square")  +
+  # keep empty bins
+  # scale_x_discrete(drop = FALSE) +
+  # add red‐filled mean points, dodged by group
+  # stat_summary(
+  #   aes(group = group2),
+  #   fun = mean,
+  #   geom = "point",
+  #   shape = 21,
+  #   size = 0.5,
+  #   fill = "red",
+  #   color = "red",
+  #   position = position_dodge(0.8)
+  # ) +
+  labs(
+    x = "Size (bp)",
+    y = "Δ log2(obs/exp)",
+  ) +
+  theme_classic() +
+  theme(
+    axis.text.x        = element_text(angle = 45, hjust = 1),
+    strip.background   = element_rect(fill = "white", color = "black"),
+    strip.text         = element_text(face = "bold")
+  ) +
+  geom_hline(yintercept = 0) +
+  coord_cartesian(ylim = c(-2.5, -0)) +
+      scale_x_continuous(labels = label_kb_mb) +
+  theme(
+    axis.title       = element_text(size = fontSizeS, family = fontType),
+    axis.text        = element_text(size = fontSizeS, family = fontType),
+    axis.line        = element_line(size = lineThick * mmToLineUnit, lineend = "square"),
+    axis.ticks       = element_line(size = lineThick * mmToLineUnit, lineend = "square"),
+    panel.background = element_rect(fill = "transparent"),
+    legend.title     = element_text(family = fontType, size = fontSizeS),
+    legend.text      = element_text(family = fontType, size = fontSizeS)
+  ) +
+  # close the guides(...) call properly and map the correct aesthetic
+  guides(
+    fill = guide_legend(
+      keywidth  = 0.5,
+      keyheight = 0.5
+    )
+  )
+
+
+fileName <- paste0("dist_vs_score_binned_reg_str_chromo_unique")
+
+width <- panelSize(2.2)*mmToInch
+height <- panelSize(1.5)*mmToInch
+
+svglite(here(figDir, paste0(fileName, "_500kb.svg")), 
+        width = width, height = height)
+print(p0)
+dev.off()
+
+data <- fread(here(commonLoopDir, "loopScore_chromosight.tsv")) %>%
+  dplyr::filter(!(id %in% loop_chromo_unique$id)) %>%
+  dplyr::filter(!is.na(ooe_DMSO), !is.na(ooe_dTAG)) %>%
+  dplyr::mutate(
+    x_ooe = if_else(ooe_DMSO == 0, pseudo_ooe, ooe_DMSO),
+    y_ooe = if_else(ooe_dTAG == 0, pseudo_ooe, ooe_dTAG),
+    fc    = log2(y_ooe / x_ooe),
+    distance = start2 - start1,
+    dist_bin = cut(
+      distance,
+      breaks = c(seq(0, 1e6, by = 1e5), Inf),
+      labels = c(
+        paste0(seq(0, 9e5, 1e5) / 1e3, "-", seq(1e5, 1e6, 1e5) / 1e3, "kb"),
+        ">1Mb"
+      ),
+      right = FALSE
+    )) %>%
+  dplyr::select(distance, dist_bin, fc, Anno)
+
+data <- data %>% dplyr::mutate(
+  group = case_when(
+    Anno %in% c("P-P", "P-E", "E-E") ~ "reg_reg",
+    Anno %in% c("P-SP", "P-SE", "E-SP", "E-SE") ~ "reg_strReg",
+    Anno %in% c("P-S", "E-S") ~ "reg_str",
+    Anno %in% c("SP-SP", "SP-SE", "SE-SE") ~ "strReg_strReg",
+    Anno %in% c("SP-S", "SE-S") ~ "strReg_str",
+    Anno %in% c("P-X", "E-X") ~ "reg_other",
+    Anno %in% c("SP-X", "SE-X") ~ "strReg_other",
+    Anno %in% c("S-S", "S-X") ~ "str",
+    Anno %in% c("X-X") ~ "other",
+    
+    TRUE ~ "XXX")
+) %>%
+  dplyr::mutate(group2 = case_when(
+    Anno == "P-P" ~ "P-P",
+    Anno == "P-E" ~ "P-E",
+    Anno == "E-E" ~ "E-E",
+    # group %in% c("reg_reg") ~ "reg",
+    group %in% c("reg_strReg", "reg_str") ~ "mixed",
+    group %in% c("strReg_strReg", "strReg_str", "strReg_other") ~ "mixed",
+    group %in% c("str") ~ "str",
+    TRUE ~ "XXXXX"
+  ))
+
+
+
+
+
+data$group2 <- factor(data$group2, levels = c("P-P", "P-E", "E-E", "mixed", "str"))
+
+
+palnpg <- pal_npg()(10)
+
+p0 <- ggplot(
+  data %>% dplyr::filter(group2 %in% c("P-P", "P-E", "E-E", "mixed", "str"),
+                         distance < 550000),
+  aes(x = distance, y = fc, fill = group2, color = group2)
+) +
+  scale_fill_manual(values =c(palnpg[8], palnpg[1], palnpg[5], palnpg[2], palnpg[3])) +
+  scale_color_manual(values =c(palnpg[8], palnpg[1], palnpg[5], palnpg[2], palnpg[3])) +
+  
+  # remove outliers with outlier.shape = NA (there is no "outliers" argument)
+  # geom_boxplot(outlier.shape = NA) +
+    geom_smooth(show.legend = TRUE, se = TRUE,
+              size = lineThick*mmToLineUnit,
+              lineend = "square")  +
+  # keep empty bins
+  # scale_x_discrete(drop = FALSE) +
+  # add red‐filled mean points, dodged by group
+  # stat_summary(
+  #   aes(group = group2),
+  #   fun = mean,
+  #   geom = "point",
+  #   shape = 21,
+  #   size = 0.5,
+  #   fill = "red",
+  #   color = "red",
+  #   position = position_dodge(0.8)
+  # ) +
+  labs(
+    x = "Size (bp)",
+    y = "Δ log2(obs/exp)",
+  ) +
+  theme_classic() +
+  theme(
+    axis.text.x        = element_text(angle = 45, hjust = 1),
+    strip.background   = element_rect(fill = "white", color = "black"),
+    strip.text         = element_text(face = "bold")
+  ) +
+  geom_hline(yintercept = 0) +
+  coord_cartesian(ylim = c(-2.5, -0)) +
+      scale_x_continuous(labels = label_kb_mb) +
+  theme(
+    axis.title       = element_text(size = fontSizeS, family = fontType),
+    axis.text        = element_text(size = fontSizeS, family = fontType),
+    axis.line        = element_line(size = lineThick * mmToLineUnit, lineend = "square"),
+    axis.ticks       = element_line(size = lineThick * mmToLineUnit, lineend = "square"),
+    panel.background = element_rect(fill = "transparent"),
+    legend.title     = element_text(family = fontType, size = fontSizeS),
+    legend.text      = element_text(family = fontType, size = fontSizeS)
+  ) +
+  # close the guides(...) call properly and map the correct aesthetic
+  guides(
+    fill = guide_legend(
+      keywidth  = 0.5,
+      keyheight = 0.5
+    )
+  )
+
+
+fileName <- paste0("dist_vs_score_binned_reg_str_chromo_common")
+
+width <- panelSize(2.2)*mmToInch
+height <- panelSize(1.5)*mmToInch
+
+svglite(here(figDir, paste0(fileName, "_500kb.svg")), 
+        width = width, height = height)
+print(p0)
+dev.off()
+
+################################################################################
+# Import annotation
+commonLoopDir <- here("../data/loop_analysis")
+figDir <- here("../figure/loop_analysis")
+
+pseudo_ooe <- 0.01
+
+data <- fread(here(commonLoopDir, "loopScore_fithic.tsv")) %>%
+  dplyr::filter(!is.na(ooe_DMSO), !is.na(ooe_dTAG)) %>%
+  dplyr::mutate(
+    x_ooe = if_else(ooe_DMSO == 0, pseudo_ooe, ooe_DMSO),
+    y_ooe = if_else(ooe_dTAG == 0, pseudo_ooe, ooe_dTAG),
+    fc    = log2(y_ooe / x_ooe),
+    distance = start2 - start1,
+    dist_bin = cut(
+      distance,
+      breaks = c(seq(0, 1e6, by = 1e5), Inf),
+      labels = c(
+        paste0(seq(0, 9e5, 1e5) / 1e3, "-", seq(1e5, 1e6, 1e5) / 1e3, "kb"),
+        ">1Mb"
+      ),
+      right = FALSE
+    )) %>%
+  dplyr::select(distance, dist_bin, fc, Anno)
+
+data <- data %>% dplyr::mutate(
+  group = case_when(
+    Anno %in% c("P-P", "P-E", "E-E") ~ "reg_reg",
+    Anno %in% c("P-SP", "P-SE", "E-SP", "E-SE") ~ "reg_strReg",
+    Anno %in% c("P-S", "E-S") ~ "reg_str",
+    Anno %in% c("SP-SP", "SP-SE", "SE-SE") ~ "strReg_strReg",
+    Anno %in% c("SP-S", "SE-S") ~ "strReg_str",
+    Anno %in% c("P-X", "E-X") ~ "reg_other",
+    Anno %in% c("SP-X", "SE-X") ~ "strReg_other",
+    Anno %in% c("S-S", "S-X") ~ "str",
+    Anno %in% c("X-X") ~ "other",
+    
+    TRUE ~ "XXX")
+) %>%
+  dplyr::mutate(group2 = case_when(
+    Anno == "P-P" ~ "P-P",
+    Anno == "P-E" ~ "P-E",
+    Anno == "E-E" ~ "E-E",
+    # group %in% c("reg_reg") ~ "reg",
+    group %in% c("reg_strReg", "reg_str") ~ "mixed",
+    group %in% c("strReg_strReg", "strReg_str", "strReg_other") ~ "mixed",
+    group %in% c("str") ~ "str",
+    TRUE ~ "XXXXX"
+  ))
+
+
+
+
+
+data$group2 <- factor(data$group2, levels = c("P-P", "P-E", "E-E", "mixed", "str"))
+
+
+palnpg <- pal_npg()(10)
+
+p0 <- ggplot(
+  data %>% dplyr::filter(group2 %in% c("P-P", "P-E", "E-E", "mixed", "str"),
+                         distance < 550000),
+  aes(x = distance, y = fc, fill = group2, color = group2)
+) +
+  scale_fill_manual(values =c(palnpg[8], palnpg[1], palnpg[5], palnpg[2], palnpg[3])) +
+  scale_color_manual(values =c(palnpg[8], palnpg[1], palnpg[5], palnpg[2], palnpg[3])) +
+  
+  # remove outliers with outlier.shape = NA (there is no "outliers" argument)
+  # geom_boxplot(outlier.shape = NA) +
+    geom_smooth(show.legend = TRUE, se = TRUE,
+              size = lineThick*mmToLineUnit,
+              lineend = "square")  +
+  # keep empty bins
+  # scale_x_discrete(drop = FALSE) +
+  # add red‐filled mean points, dodged by group
+  # stat_summary(
+  #   aes(group = group2),
+  #   fun = mean,
+  #   geom = "point",
+  #   shape = 21,
+  #   size = 0.5,
+  #   fill = "red",
+  #   color = "red",
+  #   position = position_dodge(0.8)
+  # ) +
+  labs(
+    x = "Size (bp)",
+    y = "Δ log2(obs/exp)",
+  ) +
+  theme_classic() +
+  theme(
+    axis.text.x        = element_text(angle = 45, hjust = 1),
+    strip.background   = element_rect(fill = "white", color = "black"),
+    strip.text         = element_text(face = "bold")
+  ) +
+  geom_hline(yintercept = 0) +
+  coord_cartesian(ylim = c(-1.8, -0.2)) +
+      scale_x_continuous(labels = label_kb_mb) +
+  theme(
+    axis.title       = element_text(size = fontSizeS, family = fontType),
+    axis.text        = element_text(size = fontSizeS, family = fontType),
+    axis.line        = element_line(size = lineThick * mmToLineUnit, lineend = "square"),
+    axis.ticks       = element_line(size = lineThick * mmToLineUnit, lineend = "square"),
+    panel.background = element_rect(fill = "transparent"),
+    legend.title     = element_text(family = fontType, size = fontSizeS),
+    legend.text      = element_text(family = fontType, size = fontSizeS)
+  ) +
+  # close the guides(...) call properly and map the correct aesthetic
+  guides(
+    fill = guide_legend(
+      keywidth  = 0.5,
+      keyheight = 0.5
+    )
+  )
+
+
+fileName <- paste0("dist_vs_score_binned_reg_str_fithic")
+
+width <- panelSize(2.2)*mmToInch
+height <- panelSize(1.5)*mmToInch
+
+svglite(here(figDir, paste0(fileName, "_500kb.svg")), 
+        width = width, height = height)
+print(p0)
+dev.off()
+
+commonLoopDir <- here("../data/loop_analysis")
+figDir <- here("../figure/loop_analysis")
+
+pseudo_ooe <- 0.01
+
+data <- fread(here(commonLoopDir, "loopScore_fithic.tsv")) %>%
+  dplyr::filter(id %in% loop_fithic_unique$id) %>%
+  dplyr::filter(!is.na(ooe_DMSO), !is.na(ooe_dTAG)) %>%
+  dplyr::mutate(
+    x_ooe = if_else(ooe_DMSO == 0, pseudo_ooe, ooe_DMSO),
+    y_ooe = if_else(ooe_dTAG == 0, pseudo_ooe, ooe_dTAG),
+    fc    = log2(y_ooe / x_ooe),
+    distance = start2 - start1,
+    dist_bin = cut(
+      distance,
+      breaks = c(seq(0, 1e6, by = 1e5), Inf),
+      labels = c(
+        paste0(seq(0, 9e5, 1e5) / 1e3, "-", seq(1e5, 1e6, 1e5) / 1e3, "kb"),
+        ">1Mb"
+      ),
+      right = FALSE
+    )) %>%
+  dplyr::select(distance, dist_bin, fc, Anno)
+
+data <- data %>% dplyr::mutate(
+  group = case_when(
+    Anno %in% c("P-P", "P-E", "E-E") ~ "reg_reg",
+    Anno %in% c("P-SP", "P-SE", "E-SP", "E-SE") ~ "reg_strReg",
+    Anno %in% c("P-S", "E-S") ~ "reg_str",
+    Anno %in% c("SP-SP", "SP-SE", "SE-SE") ~ "strReg_strReg",
+    Anno %in% c("SP-S", "SE-S") ~ "strReg_str",
+    Anno %in% c("P-X", "E-X") ~ "reg_other",
+    Anno %in% c("SP-X", "SE-X") ~ "strReg_other",
+    Anno %in% c("S-S", "S-X") ~ "str",
+    Anno %in% c("X-X") ~ "other",
+    
+    TRUE ~ "XXX")
+) %>%
+  dplyr::mutate(group2 = case_when(
+    Anno == "P-P" ~ "P-P",
+    Anno == "P-E" ~ "P-E",
+    Anno == "E-E" ~ "E-E",
+    # group %in% c("reg_reg") ~ "reg",
+    group %in% c("reg_strReg", "reg_str") ~ "mixed",
+    group %in% c("strReg_strReg", "strReg_str", "strReg_other") ~ "mixed",
+    group %in% c("str") ~ "str",
+    TRUE ~ "XXXXX"
+  ))
+
+
+
+
+
+data$group2 <- factor(data$group2, levels = c("P-P", "P-E", "E-E", "mixed", "str"))
+
+
+palnpg <- pal_npg()(10)
+
+p0 <- ggplot(
+  data %>% dplyr::filter(group2 %in% c("P-P", "P-E", "E-E", "mixed", "str"),
+                         distance < 550000),
+  aes(x = distance, y = fc, fill = group2, color = group2)
+) +
+  scale_fill_manual(values =c(palnpg[8], palnpg[1], palnpg[5], palnpg[2], palnpg[3])) +
+  scale_color_manual(values =c(palnpg[8], palnpg[1], palnpg[5], palnpg[2], palnpg[3])) +
+  
+  # remove outliers with outlier.shape = NA (there is no "outliers" argument)
+  # geom_boxplot(outlier.shape = NA) +
+    geom_smooth(show.legend = TRUE, se = TRUE,
+              size = lineThick*mmToLineUnit,
+              lineend = "square")  +
+  # keep empty bins
+  # scale_x_discrete(drop = FALSE) +
+  # add red‐filled mean points, dodged by group
+  # stat_summary(
+  #   aes(group = group2),
+  #   fun = mean,
+  #   geom = "point",
+  #   shape = 21,
+  #   size = 0.5,
+  #   fill = "red",
+  #   color = "red",
+  #   position = position_dodge(0.8)
+  # ) +
+  labs(
+    x = "Size (bp)",
+    y = "Δ log2(obs/exp)",
+  ) +
+  theme_classic() +
+  theme(
+    axis.text.x        = element_text(angle = 45, hjust = 1),
+    strip.background   = element_rect(fill = "white", color = "black"),
+    strip.text         = element_text(face = "bold")
+  ) +
+  geom_hline(yintercept = 0) +
+  coord_cartesian(ylim = c(-2.5, -0)) +
+      scale_x_continuous(labels = label_kb_mb) +
+  theme(
+    axis.title       = element_text(size = fontSizeS, family = fontType),
+    axis.text        = element_text(size = fontSizeS, family = fontType),
+    axis.line        = element_line(size = lineThick * mmToLineUnit, lineend = "square"),
+    axis.ticks       = element_line(size = lineThick * mmToLineUnit, lineend = "square"),
+    panel.background = element_rect(fill = "transparent"),
+    legend.title     = element_text(family = fontType, size = fontSizeS),
+    legend.text      = element_text(family = fontType, size = fontSizeS)
+  ) +
+  # close the guides(...) call properly and map the correct aesthetic
+  guides(
+    fill = guide_legend(
+      keywidth  = 0.5,
+      keyheight = 0.5
+    )
+  )
+
+
+fileName <- paste0("dist_vs_score_binned_reg_str_fithic_unique")
+
+width <- panelSize(2.2)*mmToInch
+height <- panelSize(1.5)*mmToInch
+
+svglite(here(figDir, paste0(fileName, "_500kb.svg")), 
+        width = width, height = height)
+print(p0)
+dev.off()
+
+data <- fread(here(commonLoopDir, "loopScore_fithic.tsv")) %>%
+  dplyr::filter(!(id %in% loop_fithic_unique$id)) %>%
+  dplyr::filter(!is.na(ooe_DMSO), !is.na(ooe_dTAG)) %>%
+  dplyr::mutate(
+    x_ooe = if_else(ooe_DMSO == 0, pseudo_ooe, ooe_DMSO),
+    y_ooe = if_else(ooe_dTAG == 0, pseudo_ooe, ooe_dTAG),
+    fc    = log2(y_ooe / x_ooe),
+    distance = start2 - start1,
+    dist_bin = cut(
+      distance,
+      breaks = c(seq(0, 1e6, by = 1e5), Inf),
+      labels = c(
+        paste0(seq(0, 9e5, 1e5) / 1e3, "-", seq(1e5, 1e6, 1e5) / 1e3, "kb"),
+        ">1Mb"
+      ),
+      right = FALSE
+    )) %>%
+  dplyr::select(distance, dist_bin, fc, Anno)
+
+data <- data %>% dplyr::mutate(
+  group = case_when(
+    Anno %in% c("P-P", "P-E", "E-E") ~ "reg_reg",
+    Anno %in% c("P-SP", "P-SE", "E-SP", "E-SE") ~ "reg_strReg",
+    Anno %in% c("P-S", "E-S") ~ "reg_str",
+    Anno %in% c("SP-SP", "SP-SE", "SE-SE") ~ "strReg_strReg",
+    Anno %in% c("SP-S", "SE-S") ~ "strReg_str",
+    Anno %in% c("P-X", "E-X") ~ "reg_other",
+    Anno %in% c("SP-X", "SE-X") ~ "strReg_other",
+    Anno %in% c("S-S", "S-X") ~ "str",
+    Anno %in% c("X-X") ~ "other",
+    
+    TRUE ~ "XXX")
+) %>%
+  dplyr::mutate(group2 = case_when(
+    Anno == "P-P" ~ "P-P",
+    Anno == "P-E" ~ "P-E",
+    Anno == "E-E" ~ "E-E",
+    # group %in% c("reg_reg") ~ "reg",
+    group %in% c("reg_strReg", "reg_str") ~ "mixed",
+    group %in% c("strReg_strReg", "strReg_str", "strReg_other") ~ "mixed",
+    group %in% c("str") ~ "str",
+    TRUE ~ "XXXXX"
+  ))
+
+
+
+
+
+data$group2 <- factor(data$group2, levels = c("P-P", "P-E", "E-E", "mixed", "str"))
+
+
+palnpg <- pal_npg()(10)
+
+p0 <- ggplot(
+  data %>% dplyr::filter(group2 %in% c("P-P", "P-E", "E-E", "mixed", "str"),
+                         distance < 550000),
+  aes(x = distance, y = fc, fill = group2, color = group2)
+) +
+  scale_fill_manual(values =c(palnpg[8], palnpg[1], palnpg[5], palnpg[2], palnpg[3])) +
+  scale_color_manual(values =c(palnpg[8], palnpg[1], palnpg[5], palnpg[2], palnpg[3])) +
+  
+  # remove outliers with outlier.shape = NA (there is no "outliers" argument)
+  # geom_boxplot(outlier.shape = NA) +
+    geom_smooth(show.legend = TRUE, se = TRUE,
+              size = lineThick*mmToLineUnit,
+              lineend = "square")  +
+  # keep empty bins
+  # scale_x_discrete(drop = FALSE) +
+  # add red‐filled mean points, dodged by group
+  # stat_summary(
+  #   aes(group = group2),
+  #   fun = mean,
+  #   geom = "point",
+  #   shape = 21,
+  #   size = 0.5,
+  #   fill = "red",
+  #   color = "red",
+  #   position = position_dodge(0.8)
+  # ) +
+  labs(
+    x = "Size (bp)",
+    y = "Δ log2(obs/exp)",
+  ) +
+  theme_classic() +
+  theme(
+    axis.text.x        = element_text(angle = 45, hjust = 1),
+    strip.background   = element_rect(fill = "white", color = "black"),
+    strip.text         = element_text(face = "bold")
+  ) +
+  geom_hline(yintercept = 0) +
+  coord_cartesian(ylim = c(-2.5, -0)) +
+      scale_x_continuous(labels = label_kb_mb) +
+  theme(
+    axis.title       = element_text(size = fontSizeS, family = fontType),
+    axis.text        = element_text(size = fontSizeS, family = fontType),
+    axis.line        = element_line(size = lineThick * mmToLineUnit, lineend = "square"),
+    axis.ticks       = element_line(size = lineThick * mmToLineUnit, lineend = "square"),
+    panel.background = element_rect(fill = "transparent"),
+    legend.title     = element_text(family = fontType, size = fontSizeS),
+    legend.text      = element_text(family = fontType, size = fontSizeS)
+  ) +
+  # close the guides(...) call properly and map the correct aesthetic
+  guides(
+    fill = guide_legend(
+      keywidth  = 0.5,
+      keyheight = 0.5
+    )
+  )
+
+
+fileName <- paste0("dist_vs_score_binned_reg_str_fithic_common")
+
+width <- panelSize(2.2)*mmToInch
+height <- panelSize(1.5)*mmToInch
+
+svglite(here(figDir, paste0(fileName, "_500kb.svg")), 
+        width = width, height = height)
+print(p0)
+dev.off()
+
+
+################################################################################
+# Import annotation
+commonLoopDir <- here("../data/loop_analysis")
+figDir <- here("../figure/loop_analysis")
+
+pseudo_ooe <- 0.01
+
+data <- fread(here(commonLoopDir, "loopScore_hicdcp.tsv")) %>%
+  dplyr::filter(!is.na(ooe_DMSO), !is.na(ooe_dTAG)) %>%
+  dplyr::mutate(
+    x_ooe = if_else(ooe_DMSO == 0, pseudo_ooe, ooe_DMSO),
+    y_ooe = if_else(ooe_dTAG == 0, pseudo_ooe, ooe_dTAG),
+    fc    = log2(y_ooe / x_ooe),
+    distance = start2 - start1,
+    dist_bin = cut(
+      distance,
+      breaks = c(seq(0, 1e6, by = 1e5), Inf),
+      labels = c(
+        paste0(seq(0, 9e5, 1e5) / 1e3, "-", seq(1e5, 1e6, 1e5) / 1e3, "kb"),
+        ">1Mb"
+      ),
+      right = FALSE
+    )) %>%
+  dplyr::select(distance, dist_bin, fc, Anno)
+
+data <- data %>% dplyr::mutate(
+  group = case_when(
+    Anno %in% c("P-P", "P-E", "E-E") ~ "reg_reg",
+    Anno %in% c("P-SP", "P-SE", "E-SP", "E-SE") ~ "reg_strReg",
+    Anno %in% c("P-S", "E-S") ~ "reg_str",
+    Anno %in% c("SP-SP", "SP-SE", "SE-SE") ~ "strReg_strReg",
+    Anno %in% c("SP-S", "SE-S") ~ "strReg_str",
+    Anno %in% c("P-X", "E-X") ~ "reg_other",
+    Anno %in% c("SP-X", "SE-X") ~ "strReg_other",
+    Anno %in% c("S-S", "S-X") ~ "str",
+    Anno %in% c("X-X") ~ "other",
+    
+    TRUE ~ "XXX")
+) %>%
+  dplyr::mutate(group2 = case_when(
+    Anno == "P-P" ~ "P-P",
+    Anno == "P-E" ~ "P-E",
+    Anno == "E-E" ~ "E-E",
+    # group %in% c("reg_reg") ~ "reg",
+    group %in% c("reg_strReg", "reg_str") ~ "mixed",
+    group %in% c("strReg_strReg", "strReg_str", "strReg_other") ~ "mixed",
+    group %in% c("str") ~ "str",
+    TRUE ~ "XXXXX"
+  ))
+
+
+
+
+
+data$group2 <- factor(data$group2, levels = c("P-P", "P-E", "E-E", "mixed", "str"))
+
+
+palnpg <- pal_npg()(10)
+
+p0 <- ggplot(
+  data %>% dplyr::filter(group2 %in% c("P-P", "P-E", "E-E", "mixed", "str"),
+                         distance < 550000),
+  aes(x = distance, y = fc, fill = group2, color = group2)
+) +
+  scale_fill_manual(values =c(palnpg[8], palnpg[1], palnpg[5], palnpg[2], palnpg[3])) +
+  scale_color_manual(values =c(palnpg[8], palnpg[1], palnpg[5], palnpg[2], palnpg[3])) +
+  
+  # remove outliers with outlier.shape = NA (there is no "outliers" argument)
+  # geom_boxplot(outlier.shape = NA) +
+    geom_smooth(show.legend = TRUE, se = TRUE,
+              size = lineThick*mmToLineUnit,
+              lineend = "square")  +
+  # keep empty bins
+  # scale_x_discrete(drop = FALSE) +
+  # add red‐filled mean points, dodged by group
+  # stat_summary(
+  #   aes(group = group2),
+  #   fun = mean,
+  #   geom = "point",
+  #   shape = 21,
+  #   size = 0.5,
+  #   fill = "red",
+  #   color = "red",
+  #   position = position_dodge(0.8)
+  # ) +
+  labs(
+    x = "Size (bp)",
+    y = "Δ log2(obs/exp)",
+  ) +
+  theme_classic() +
+  theme(
+    axis.text.x        = element_text(angle = 45, hjust = 1),
+    strip.background   = element_rect(fill = "white", color = "black"),
+    strip.text         = element_text(face = "bold")
+  ) +
+  geom_hline(yintercept = 0) +
+  coord_cartesian(ylim = c(-1.8, -0.2)) +
+      scale_x_continuous(labels = label_kb_mb) +
+  theme(
+    axis.title       = element_text(size = fontSizeS, family = fontType),
+    axis.text        = element_text(size = fontSizeS, family = fontType),
+    axis.line        = element_line(size = lineThick * mmToLineUnit, lineend = "square"),
+    axis.ticks       = element_line(size = lineThick * mmToLineUnit, lineend = "square"),
+    panel.background = element_rect(fill = "transparent"),
+    legend.title     = element_text(family = fontType, size = fontSizeS),
+    legend.text      = element_text(family = fontType, size = fontSizeS)
+  ) +
+  # close the guides(...) call properly and map the correct aesthetic
+  guides(
+    fill = guide_legend(
+      keywidth  = 0.5,
+      keyheight = 0.5
+    )
+  )
+
+
+fileName <- paste0("dist_vs_score_binned_reg_str_hicdcp")
+
+width <- panelSize(2.2)*mmToInch
+height <- panelSize(1.5)*mmToInch
+
+svglite(here(figDir, paste0(fileName, "_500kb.svg")), 
+        width = width, height = height)
+print(p0)
+dev.off()
+
+
+commonLoopDir <- here("../data/loop_analysis")
+figDir <- here("../figure/loop_analysis")
+
+pseudo_ooe <- 0.01
+
+data <- fread(here(commonLoopDir, "loopScore_hicdcp.tsv")) %>%
+  dplyr::filter(id %in% loop_hicdcp_unique$id) %>%
+  dplyr::filter(!is.na(ooe_DMSO), !is.na(ooe_dTAG)) %>%
+  dplyr::mutate(
+    x_ooe = if_else(ooe_DMSO == 0, pseudo_ooe, ooe_DMSO),
+    y_ooe = if_else(ooe_dTAG == 0, pseudo_ooe, ooe_dTAG),
+    fc    = log2(y_ooe / x_ooe),
+    distance = start2 - start1,
+    dist_bin = cut(
+      distance,
+      breaks = c(seq(0, 1e6, by = 1e5), Inf),
+      labels = c(
+        paste0(seq(0, 9e5, 1e5) / 1e3, "-", seq(1e5, 1e6, 1e5) / 1e3, "kb"),
+        ">1Mb"
+      ),
+      right = FALSE
+    )) %>%
+  dplyr::select(distance, dist_bin, fc, Anno)
+
+data <- data %>% dplyr::mutate(
+  group = case_when(
+    Anno %in% c("P-P", "P-E", "E-E") ~ "reg_reg",
+    Anno %in% c("P-SP", "P-SE", "E-SP", "E-SE") ~ "reg_strReg",
+    Anno %in% c("P-S", "E-S") ~ "reg_str",
+    Anno %in% c("SP-SP", "SP-SE", "SE-SE") ~ "strReg_strReg",
+    Anno %in% c("SP-S", "SE-S") ~ "strReg_str",
+    Anno %in% c("P-X", "E-X") ~ "reg_other",
+    Anno %in% c("SP-X", "SE-X") ~ "strReg_other",
+    Anno %in% c("S-S", "S-X") ~ "str",
+    Anno %in% c("X-X") ~ "other",
+    
+    TRUE ~ "XXX")
+) %>%
+  dplyr::mutate(group2 = case_when(
+    Anno == "P-P" ~ "P-P",
+    Anno == "P-E" ~ "P-E",
+    Anno == "E-E" ~ "E-E",
+    # group %in% c("reg_reg") ~ "reg",
+    group %in% c("reg_strReg", "reg_str") ~ "mixed",
+    group %in% c("strReg_strReg", "strReg_str", "strReg_other") ~ "mixed",
+    group %in% c("str") ~ "str",
+    TRUE ~ "XXXXX"
+  ))
+
+
+
+
+
+data$group2 <- factor(data$group2, levels = c("P-P", "P-E", "E-E", "mixed", "str"))
+
+
+palnpg <- pal_npg()(10)
+
+p0 <- ggplot(
+  data %>% dplyr::filter(group2 %in% c("P-P", "P-E", "E-E", "mixed", "str"),
+                         distance < 550000),
+  aes(x = distance, y = fc, fill = group2, color = group2)
+) +
+  scale_fill_manual(values =c(palnpg[8], palnpg[1], palnpg[5], palnpg[2], palnpg[3])) +
+  scale_color_manual(values =c(palnpg[8], palnpg[1], palnpg[5], palnpg[2], palnpg[3])) +
+  
+  # remove outliers with outlier.shape = NA (there is no "outliers" argument)
+  # geom_boxplot(outlier.shape = NA) +
+    geom_smooth(show.legend = TRUE, se = TRUE,
+              size = lineThick*mmToLineUnit,
+              lineend = "square")  +
+  # keep empty bins
+  # scale_x_discrete(drop = FALSE) +
+  # add red‐filled mean points, dodged by group
+  # stat_summary(
+  #   aes(group = group2),
+  #   fun = mean,
+  #   geom = "point",
+  #   shape = 21,
+  #   size = 0.5,
+  #   fill = "red",
+  #   color = "red",
+  #   position = position_dodge(0.8)
+  # ) +
+  labs(
+    x = "Size (bp)",
+    y = "Δ log2(obs/exp)",
+  ) +
+  theme_classic() +
+  theme(
+    axis.text.x        = element_text(angle = 45, hjust = 1),
+    strip.background   = element_rect(fill = "white", color = "black"),
+    strip.text         = element_text(face = "bold")
+  ) +
+  geom_hline(yintercept = 0) +
+  coord_cartesian(ylim = c(-2.5, -0)) +
+      scale_x_continuous(labels = label_kb_mb) +
+  theme(
+    axis.title       = element_text(size = fontSizeS, family = fontType),
+    axis.text        = element_text(size = fontSizeS, family = fontType),
+    axis.line        = element_line(size = lineThick * mmToLineUnit, lineend = "square"),
+    axis.ticks       = element_line(size = lineThick * mmToLineUnit, lineend = "square"),
+    panel.background = element_rect(fill = "transparent"),
+    legend.title     = element_text(family = fontType, size = fontSizeS),
+    legend.text      = element_text(family = fontType, size = fontSizeS)
+  ) +
+  # close the guides(...) call properly and map the correct aesthetic
+  guides(
+    fill = guide_legend(
+      keywidth  = 0.5,
+      keyheight = 0.5
+    )
+  )
+
+
+fileName <- paste0("dist_vs_score_binned_reg_str_hicdcp_unique")
+
+width <- panelSize(2.2)*mmToInch
+height <- panelSize(1.5)*mmToInch
+
+svglite(here(figDir, paste0(fileName, "_500kb.svg")), 
+        width = width, height = height)
+print(p0)
+dev.off()
+
+data <- fread(here(commonLoopDir, "loopScore_hicdcp.tsv")) %>%
+  dplyr::filter(!(id %in% loop_hicdcp_unique$id)) %>%
+  dplyr::filter(!is.na(ooe_DMSO), !is.na(ooe_dTAG)) %>%
+  dplyr::mutate(
+    x_ooe = if_else(ooe_DMSO == 0, pseudo_ooe, ooe_DMSO),
+    y_ooe = if_else(ooe_dTAG == 0, pseudo_ooe, ooe_dTAG),
+    fc    = log2(y_ooe / x_ooe),
+    distance = start2 - start1,
+    dist_bin = cut(
+      distance,
+      breaks = c(seq(0, 1e6, by = 1e5), Inf),
+      labels = c(
+        paste0(seq(0, 9e5, 1e5) / 1e3, "-", seq(1e5, 1e6, 1e5) / 1e3, "kb"),
+        ">1Mb"
+      ),
+      right = FALSE
+    )) %>%
+  dplyr::select(distance, dist_bin, fc, Anno)
+
+data <- data %>% dplyr::mutate(
+  group = case_when(
+    Anno %in% c("P-P", "P-E", "E-E") ~ "reg_reg",
+    Anno %in% c("P-SP", "P-SE", "E-SP", "E-SE") ~ "reg_strReg",
+    Anno %in% c("P-S", "E-S") ~ "reg_str",
+    Anno %in% c("SP-SP", "SP-SE", "SE-SE") ~ "strReg_strReg",
+    Anno %in% c("SP-S", "SE-S") ~ "strReg_str",
+    Anno %in% c("P-X", "E-X") ~ "reg_other",
+    Anno %in% c("SP-X", "SE-X") ~ "strReg_other",
+    Anno %in% c("S-S", "S-X") ~ "str",
+    Anno %in% c("X-X") ~ "other",
+    
+    TRUE ~ "XXX")
+) %>%
+  dplyr::mutate(group2 = case_when(
+    Anno == "P-P" ~ "P-P",
+    Anno == "P-E" ~ "P-E",
+    Anno == "E-E" ~ "E-E",
+    # group %in% c("reg_reg") ~ "reg",
+    group %in% c("reg_strReg", "reg_str") ~ "mixed",
+    group %in% c("strReg_strReg", "strReg_str", "strReg_other") ~ "mixed",
+    group %in% c("str") ~ "str",
+    TRUE ~ "XXXXX"
+  ))
+
+
+
+
+
+data$group2 <- factor(data$group2, levels = c("P-P", "P-E", "E-E", "mixed", "str"))
+
+
+palnpg <- pal_npg()(10)
+
+p0 <- ggplot(
+  data %>% dplyr::filter(group2 %in% c("P-P", "P-E", "E-E", "mixed", "str"),
+                         distance < 550000),
+  aes(x = distance, y = fc, fill = group2, color = group2)
+) +
+  scale_fill_manual(values =c(palnpg[8], palnpg[1], palnpg[5], palnpg[2], palnpg[3])) +
+  scale_color_manual(values =c(palnpg[8], palnpg[1], palnpg[5], palnpg[2], palnpg[3])) +
+  
+  # remove outliers with outlier.shape = NA (there is no "outliers" argument)
+  # geom_boxplot(outlier.shape = NA) +
+    geom_smooth(show.legend = TRUE, se = TRUE,
+              size = lineThick*mmToLineUnit,
+              lineend = "square")  +
+  # keep empty bins
+  # scale_x_discrete(drop = FALSE) +
+  # add red‐filled mean points, dodged by group
+  # stat_summary(
+  #   aes(group = group2),
+  #   fun = mean,
+  #   geom = "point",
+  #   shape = 21,
+  #   size = 0.5,
+  #   fill = "red",
+  #   color = "red",
+  #   position = position_dodge(0.8)
+  # ) +
+  labs(
+    x = "Size (bp)",
+    y = "Δ log2(obs/exp)",
+  ) +
+  theme_classic() +
+  theme(
+    axis.text.x        = element_text(angle = 45, hjust = 1),
+    strip.background   = element_rect(fill = "white", color = "black"),
+    strip.text         = element_text(face = "bold")
+  ) +
+  geom_hline(yintercept = 0) +
+  coord_cartesian(ylim = c(-2.5, -0)) +
+      scale_x_continuous(labels = label_kb_mb) +
+  theme(
+    axis.title       = element_text(size = fontSizeS, family = fontType),
+    axis.text        = element_text(size = fontSizeS, family = fontType),
+    axis.line        = element_line(size = lineThick * mmToLineUnit, lineend = "square"),
+    axis.ticks       = element_line(size = lineThick * mmToLineUnit, lineend = "square"),
+    panel.background = element_rect(fill = "transparent"),
+    legend.title     = element_text(family = fontType, size = fontSizeS),
+    legend.text      = element_text(family = fontType, size = fontSizeS)
+  ) +
+  # close the guides(...) call properly and map the correct aesthetic
+  guides(
+    fill = guide_legend(
+      keywidth  = 0.5,
+      keyheight = 0.5
+    )
+  )
+
+
+fileName <- paste0("dist_vs_score_binned_reg_str_hicdcp_common")
+
+width <- panelSize(2.2)*mmToInch
+height <- panelSize(1.5)*mmToInch
+
+svglite(here(figDir, paste0(fileName, "_500kb.svg")), 
+        width = width, height = height)
+print(p0)
+dev.off()
+```
+
+```{r}
+library(tidyverse)
+library(data.table)
+library(here)
+library(svglite)
+library(ggsci)
+
+# --- Constants ---
+commonLoopDir <- here("../data/loop_analysis")
+figDir        <- here("../figure/loop_analysis")
+pseudo_ooe    <- 0.01
+palnpg        <- pal_npg()(10)
+# Define specific colors mapped to groups to ensure consistency
+group_colors  <- c("P-P" = palnpg[8], "P-E" = palnpg[1], "E-E" = palnpg[5], 
+                   "mixed" = palnpg[2], "str" = palnpg[3])
+
+# --- Function 1: Load and Process Data ---
+# mode: "all" (no filtering), "include" (keep only ids in id_list), "exclude" (remove ids in id_list)
+get_processed_data <- function(file_path, id_list = NULL, mode = "all") {
+  
+  dt <- fread(file_path) %>%
+    dplyr::filter(!is.na(ooe_DMSO), !is.na(ooe_dTAG))
+  
+  # Filter based on ID list
+  if (mode == "include" && !is.null(id_list)) {
+    dt <- dt %>% dplyr::filter(id %in% id_list)
+  } else if (mode == "exclude" && !is.null(id_list)) {
+    dt <- dt %>% dplyr::filter(!id %in% id_list)
+  }
+  
+  # Calculate metrics and groups
+  dt <- dt %>%
+    dplyr::mutate(
+      x_ooe = if_else(ooe_DMSO == 0, pseudo_ooe, ooe_DMSO),
+      y_ooe = if_else(ooe_dTAG == 0, pseudo_ooe, ooe_dTAG),
+      fc    = log2(y_ooe / x_ooe),
+      distance = start2 - start1
+    ) %>%
+    dplyr::mutate(
+      group = case_when(
+        Anno %in% c("P-P", "P-E", "E-E") ~ "reg_reg",
+        Anno %in% c("P-SP", "P-SE", "E-SP", "E-SE") ~ "reg_strReg",
+        Anno %in% c("P-S", "E-S") ~ "reg_str",
+        Anno %in% c("SP-SP", "SP-SE", "SE-SE") ~ "strReg_strReg",
+        Anno %in% c("SP-S", "SE-S") ~ "strReg_str",
+        Anno %in% c("P-X", "E-X") ~ "reg_other",
+        Anno %in% c("SP-X", "SE-X") ~ "strReg_other",
+        Anno %in% c("S-S", "S-X") ~ "str",
+        Anno == "X-X" ~ "other",
+        TRUE ~ "XXX"
+      )
+    ) %>%
+    dplyr::mutate(
+      group2 = case_when(
+        Anno %in% c("P-P", "P-E", "E-E") ~ Anno,
+        group %in% c("reg_strReg", "reg_str", "strReg_strReg", "strReg_str", "strReg_other") ~ "mixed",
+        group == "str" ~ "str",
+        TRUE ~ "XXXXX"
+      )
+    )
+  
+  # Factorize and select final columns
+  dt$group2 <- factor(dt$group2, levels = c("P-P", "P-E", "E-E", "mixed", "str"))
+  
+  return(dt)
+}
+
+# --- Function 2: Plot and Save ---
+plot_loop_smooth <- function(data, y_lims, filename_suffix) {
+  
+  # Filter for plotting (distance < 550kb and valid groups)
+  plot_data <- data %>% 
+    dplyr::filter(group2 %in% names(group_colors), distance < 550000)
+  
+  p <- ggplot(plot_data, aes(x = distance, y = fc, fill = group2, color = group2)) +
+    geom_smooth(show.legend = TRUE, se = TRUE, 
+                size = lineThick * mmToLineUnit, lineend = "square") +
+    scale_fill_manual(values = group_colors) +
+    scale_color_manual(values = group_colors) +
+    geom_hline(yintercept = 0) +
+    coord_cartesian(ylim = y_lims) +
+    scale_x_continuous(labels = label_kb_mb) +
+    labs(x = "Size (bp)", y = "Δ log2(obs/exp)") +
+    theme_classic() +
+    theme(
+      axis.text.x      = element_text(angle = 45, hjust = 1),
+      strip.background = element_rect(fill = "white", color = "black"),
+      strip.text       = element_text(face = "bold"),
+      axis.title       = element_text(size = fontSizeS, family = fontType),
+      axis.text        = element_text(size = fontSizeS, family = fontType),
+      axis.line        = element_line(size = lineThick * mmToLineUnit, lineend = "square"),
+      axis.ticks       = element_line(size = lineThick * mmToLineUnit, lineend = "square"),
+      panel.background = element_rect(fill = "transparent"),
+      legend.title     = element_text(family = fontType, size = fontSizeS),
+      legend.text      = element_text(family = fontType, size = fontSizeS)
+    ) +
+    guides(fill = guide_legend(keywidth = 0.5, keyheight = 0.5))
+
+  # Save Plot
+  width  <- panelSize(2.2) * mmToInch
+  height <- panelSize(1.5) * mmToInch
+  full_path <- here(figDir, paste0("dist_vs_score_binned_reg_str_", filename_suffix, "_500kb.svg"))
+  
+  svglite(full_path, width = width, height = height)
+  print(p)
+  dev.off()
+}
+```
+
+```{r}
+file_chromo <- here(commonLoopDir, "loopScore_chromosight.tsv")
+ymin = -1.8
+ymax = -0.2
+
+df_chromo_all <- get_processed_data(file_chromo, mode = "all")
+plot_loop_smooth(df_chromo_all, y_lims = c(ymin, ymax), filename_suffix = "chromo")
+
+# 1. Unique Loops
+df_chromo_unique <- get_processed_data(file_chromo, id_list = loop_chromo_unique$id, mode = "include")
+plot_loop_smooth(df_chromo_unique, y_lims = c(ymin, ymax), filename_suffix = "chromo_unique")
+
+# 2. Common Loops (Not Unique)
+df_chromo_common <- get_processed_data(file_chromo, id_list = loop_chromo_unique$id, mode = "exclude")
+plot_loop_smooth(df_chromo_common, y_lims = c(ymin, ymax), filename_suffix = "chromo_common")
+
+file_fithic <- here(commonLoopDir, "loopScore_fithic.tsv")
+
+# 1. All Loops (Note: Original code had tight ylims for "All" plot)
+df_fithic_all <- get_processed_data(file_fithic, mode = "all")
+plot_loop_smooth(df_fithic_all, y_lims = c(ymin, ymax), filename_suffix = "fithic")
+
+# 2. Unique Loops (Note: Original code had wider ylims for "Unique" plot)
+df_fithic_unique <- get_processed_data(file_fithic, id_list = loop_fithic_unique$id, mode = "include")
+plot_loop_smooth(df_fithic_unique, y_lims = c(ymin, ymax), filename_suffix = "fithic_unique")
+
+# 3. Common Loops
+df_fithic_common <- get_processed_data(file_fithic, id_list = loop_fithic_unique$id, mode = "exclude")
+plot_loop_smooth(df_fithic_common, y_lims = c(ymin, ymax), filename_suffix = "fithic_common")
+
+file_hicdcp <- here(commonLoopDir, "loopScore_hicdcp.tsv")
+
+# 1. All Loops
+df_hicdcp_all <- get_processed_data(file_hicdcp, mode = "all")
+plot_loop_smooth(df_hicdcp_all, y_lims = c(ymin, ymax), filename_suffix = "hicdcp")
+
+# 2. Unique Loops
+df_hicdcp_unique <- get_processed_data(file_hicdcp, id_list = loop_hicdcp_unique$id, mode = "include")
+plot_loop_smooth(df_hicdcp_unique, y_lims = c(ymin, ymax), filename_suffix = "hicdcp_unique")
+
+# 3. Common Loops
+df_hicdcp_common <- get_processed_data(file_hicdcp, id_list = loop_hicdcp_unique$id, mode = "exclude")
+plot_loop_smooth(df_hicdcp_common, y_lims = c(ymin, ymax), filename_suffix = "hicdcp_common")
 ```
 
 #### [FIG] ChIP levels on loops
@@ -10806,6 +12526,7 @@ dev.off()
 ```
 
 ## Loops
+### Single locus example
 ```{r}
 
 library(TxDb.Mmusculus.UCSC.mm10.ensGene)
@@ -10813,9 +12534,11 @@ library(ggbio)
 library(patchwork)
 library(org.Mm.eg.db)
 # Drawing parameters
-hicDir <- here("../data/hic_pooled")
+hicDir <- here("../../data/hic_pooled")
 windowSize <- 0.5*1e6
 figVisdir <- here(figDir, "visualization")
+
+
 # Importing loops
 commonLoopDir <- here("../data/loop_analysis")
 loop_chromo <- as_tibble(fread(here(commonLoopDir, "loopScore_chromosight.tsv")))
@@ -11437,6 +13160,176 @@ for(i in seq(1, nrow(temp))){
 }
 
 ```
+### Chromosight vs HiCDC+ vs FitHiC
+```{r}
+
+library(TxDb.Mmusculus.UCSC.mm10.ensGene)
+library(ggbio)
+library(patchwork)
+library(org.Mm.eg.db)
+# Drawing parameters
+hicDir <- here("../data/hic_pooled")
+windowSize <- 0.5*1e6
+figVisdir <- here(figDir, "visualization")
+
+
+# Importing loops
+commonLoopDir <- here("../data/loop_analysis")
+loop_chromo <- as_tibble(fread(here(commonLoopDir, "loopScore_chromosight.tsv")))
+loop_hicdcp <- as_tibble(fread(here(commonLoopDir, "loopScore_hicdcp.tsv")))
+loop_fithic <- as_tibble(fread(here(commonLoopDir, "loopScore_fithic.tsv")))
+
+
+## Loading hic and plotting
+cf.G1DMSO <- HicFile(path = here(hicDir, "G1DMSO_pooled_allRes.hic"))
+
+
+################################################################################
+#Filtering loops to plot (retained regulatory loops)
+comparison <- "ESC_DMSO"
+note <- "comp"
+
+scalingFactor <- 6
+
+i = 1
+chr <- "chr4"
+start <- 64300000
+end <- 65800000
+zmax = 1.75
+# 
+# i = 2
+# chr <- "chr2"
+# start <- 170800000
+# end <- 172300000
+# zmax = 1.75
+
+res = 5000
+# Resolution 5kb
+width <- panelSize(2.2)*mmToInch * scalingFactor
+height <- panelSize(2.2)*mmToInch * scalingFactor
+
+temp <- loop_chromo
+colnames(temp) <- c("V1", "V2", "V3", "V4", "V5", "V6")
+loops <- importBedpe(temp)
+hic1 <- import(cf.G1DMSO, focus = paste0(chr, ":", start, "-", end), resolution = res)
+p1 <- plotMatrix(hic1, dpi = 600, loop = loops, limits = c(0, zmax)) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+      hjust = 0.5,
+      size = fontSizeS* scalingFactor,
+      family = fontType
+    ),
+    axis.title = element_text(
+      size = fontSizeS* scalingFactor,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS* scalingFactor,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+      panel.background = element_rect(fill = "transparent"),
+    ) 
+
+fileName <- here(figVisdir, paste0("loopCallerCompare_chromosight_", i, "_zmax", zmax))
+svglite(paste0(fileName, ".svg"), width = width, height = height)
+print(p1)
+dev.off()
+
+temp <- loop_fithic
+colnames(temp) <- c("V1", "V2", "V3", "V4", "V5", "V6")
+loops <- importBedpe(temp)
+hic1 <- import(cf.G1DMSO, focus = paste0(chr, ":", start, "-", end), resolution = res)
+p2 <- plotMatrix(hic1, dpi = 600, loop = loops, limits = c(0, zmax)) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+      hjust = 0.5,
+      size = fontSizeS* scalingFactor,
+      family = fontType
+    ),
+    axis.title = element_text(
+      size = fontSizeS* scalingFactor,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS* scalingFactor,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+      panel.background = element_rect(fill = "transparent"),
+    ) 
+
+fileName <- here(figVisdir, paste0("loopCallerCompare_fithic_", i, "_zmax", zmax))
+svglite(paste0(fileName, ".svg"), width = width, height = height)
+print(p2)
+dev.off()
+
+temp <- loop_hicdcp
+colnames(temp) <- c("V1", "V2", "V3", "V4", "V5", "V6")
+loops <- importBedpe(temp)
+hic1 <- import(cf.G1DMSO, focus = paste0(chr, ":", start, "-", end), resolution = res)
+p3 <- plotMatrix(hic1, dpi = 600, loop = loops, limits = c(0, zmax)) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+      hjust = 0.5,
+      size = fontSizeS* scalingFactor,
+      family = fontType
+    ),
+    axis.title = element_text(
+      size = fontSizeS* scalingFactor,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS* scalingFactor,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+      panel.background = element_rect(fill = "transparent"),
+    ) 
+
+fileName <- here(figVisdir, paste0("loopCallerCompare_hicdcp_",i, "_zmax", zmax ))
+svglite(paste0(fileName, ".svg"), width = width, height = height)
+print(p3)
+dev.off()
+
+```
+
 ## Microcompartments
 ```{r}
 # Drawing parameters
@@ -13269,6 +15162,11 @@ print(nrow(temp))
 #   limits = c(-0.75, 0.75), # Use default data limits
 #   diff_cutoff = 0.2
 # )
+
+## Plotting strength of the conserved loops
+temp <- plot_df_delta %>% dplyr::filter(delta_Async < -0.2, 
+                                        abs(delta_G1) < 0.2,
+                                        delta_Async - delta_G1 < -0.2)
 ```
 
 
@@ -13995,6 +15893,7 @@ compareAsyncG1(data, c("E-E"), "Tjian1kbBothStrLoop", "ee")
 compareAsyncG1(data, c("S-S", "S-X"), "Tjian1kbBothStrLoop", "str")
 ```
 
+###Figures
 ```{r}
 # --- 4. GENERATE PLOTS ---
 data <- fread(here(commonLoopDir, "loopScore_TjianChromo.tsv")) %>%
@@ -14462,6 +16361,751 @@ ggsave(
 )
 
 ```
+## Additional for revision
+```{r}
+########################################################################################
+data <- fread(here(commonLoopDir, "loopScore_TjianChromo.tsv")) %>%
+ drop_na(score_DMSO, score_dTAG, score_A485, score_EpiDMSO, score_EpidTAG, score_UT, score_AID) %>%
+  dplyr::mutate(res = end1 - start1) %>%
+  dplyr::filter(res >= 1000) %>%
+  dplyr::filter(if_any(c(score_DMSO, score_dTAG, score_UT, score_AID), ~ . > 0.3)) %>%
+    dplyr::filter(Anno %in% c("P-P", "P-E", "E-E"))
+
+## Plot diff score
+plot_df_delta <- data %>%
+  dplyr::mutate(
+    delta_G1 = score_dTAG - score_DMSO,
+    delta_Async = score_AID - score_UT
+  )
+
+g1specific <- plot_df_delta %>% dplyr::filter(delta_G1 < -0.2, 
+                                        abs(delta_Async) < 0.2,
+                                        delta_G1 - delta_Async < -0.2)
+asyncspecific <- plot_df_delta %>% dplyr::filter(delta_Async < -0.2, 
+                                        abs(delta_G1) < 0.2,
+                                        delta_Async - delta_G1 < -0.2)
+print(nrow(g1specific))
+
+ncBoth <- plot_df_delta %>% dplyr::filter(abs(delta_Async) < 0.2, 
+                                        abs(delta_G1) < 0.2)
+print(nrow(ncBoth))
+
+plot_df_delta <- plot_df_delta %>% dplyr::mutate(
+  group = case_when(
+    id %in% ncBoth$id ~ "Common Resilient",
+    id %in% g1specific$id ~ "G1 specific",
+    id %in% asyncspecific$id ~ "Async specific",
+
+    TRUE ~ NA
+  )
+)
+
+temp <- plot_df_delta %>% dplyr::filter(!is.na(group))
+
+diffCutoff = 0.2
+
+# p0 <- ggplot(temp, aes(x = score_DMSO, y = score_UT)) + geom_point() + coord_fixed(xlim = c(-0.5, 1), ylim = c(-0.5, 1)) + facet_wrap(~group) + geom_abline(intercept = 0, abline = 1)
+
+p <- ggplot(temp, aes(x = score_DMSO, y = score_UT)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") + # Reference line
+  geom_point(alpha=0.1, size = 1) +
+  # geom_hex(bins = 100) + # Use geom_point(alpha=0.1) if you have < 5000 points
+  facet_wrap(~group, nrow = 1) + 
+  
+  scale_fill_viridis_c() +
+  coord_fixed(xlim = c(-0.5, 1), ylim = c(-0.5, 1)) +
+  theme_classic() + 
+  labs(x = "Score (G1 ESC DMSO)", y = "Score (Async ESC UT)") + 
+  geom_abline(slope = 1, intercept = 0, col = "grey50", linetype = "dashed",
+              color = "black",
+              size = lineThick*mmToLineUnit,
+              lineend = "square") +
+  geom_abline(slope = 1, intercept = -diffCutoff, col = "grey", linetype = "dotted",
+              color = "black",
+              size = lineThick*mmToLineUnit,
+              lineend = "square") +
+  geom_abline(slope = 1, intercept = diffCutoff, col = "grey", linetype = "dotted",
+              color = "black",
+              size = lineThick*mmToLineUnit,
+              lineend = "square") +
+  geom_hline(yintercept = 0, alpha = 0.5, color = "grey",
+             color = "black",
+             size = lineThick*mmToLineUnit,
+             lineend = "square") +
+  geom_vline(xintercept = 0, alpha = 0.5, color = "grey",
+             color = "black",
+             size = lineThick*mmToLineUnit,
+             lineend = "square") +
+  theme(
+    legend.position = "none",
+    strip.text = element_text(
+      size = fontSizeS,       # Or use a multiplier like 'fontSizeS * 1.2'
+      family = fontType,
+      color = "black"
+    ),
+    plot.title = element_text(
+      hjust = 0.5,
+      size = fontSizeS,
+      family = fontType
+    ),
+    axis.title = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+  )
+
+name <- "scatterplot_G1vsAsync_AsyncCalled"
+width <- panelSize(3)*mmToInch
+height <- panelSize(2)*mmToInch  
+svglite(here(figDir,
+             paste0(name, ".svg")),
+        width = width, height = height)
+plot(p)
+dev.off()
+
+
+temp_long <- temp %>% dplyr::select(group, score_DMSO, score_UT) %>% pivot_longer(cols = c(2, 3))
+p1 <- ggplot(temp_long, aes(x = name, y = value)) + geom_violin() + facet_wrap(~group) + geom_boxplot()
+pseudo_ooe <- 0.01
+plot_df_ooe <- temp %>%
+  dplyr::select(id, ooe_DMSO, ooe_UT, group) %>%
+  dplyr::filter(!is.na(ooe_DMSO), !is.na(ooe_UT)) %>%
+  dplyr::mutate(
+    ooe_DMSO = if_else(ooe_DMSO == 0, pseudo_ooe, ooe_DMSO),
+    ooe_UT = if_else(ooe_UT == 0, pseudo_ooe, ooe_UT),
+    fc    = log2(ooe_UT / ooe_DMSO)
+  )
+
+plot_df_ooe$group <- factor(plot_df_ooe$group, levels = c("Async specific", "Common Resilient", "G1 specific"))
+
+p3 <- ggplot(plot_df_ooe, aes(x = group, y = fc, fill = group)) +
+  geom_violin(linewidth = lineThick * mmToLineUnit, lineend = "square", alpha = .4, show.legend = FALSE,
+              color = "black") + 
+  geom_boxplot(width = 0.3, color = "black",
+               linewidth = lineThick * mmToLineUnit, lineend = "square",
+               outlier.shape = NA,  alpha = 0.6, show.legend = FALSE) + 
+  theme_classic() + 
+  stat_summary(
+    aes(group = group), fun = mean,
+    geom = "point", shape = 21, size = 0.5,
+    fill = "black", color = "black", position = position_dodge(.3)
+  ) +
+  coord_cartesian(ylim = c(-3, 3)) +
+  scale_fill_manual(values = c("grey30", "grey30", "grey30")) +
+  theme(
+    axis.title.x = element_blank(),
+    axis.title.y = element_text(
+      size = fontSizeM,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text.x = element_text(
+      size = fontSizeM,
+      angle = 45,      # Rotate x-axis labels 45 degrees
+      hjust = 1,       # Adjust horizontal justification
+      vjust = 1        # Adjust vertical justification
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+    legend.text = element_text(family = fontType, size = fontSizeS),
+    legend.title = element_text(family = fontType, size = fontSizeS)
+  ) +labs(y = "log2 fc of obs/exp")  +
+  geom_hline(yintercept = 0,
+             alpha = 1,
+             color = "black",
+             size = lineThick*mmToLineUnit,
+             lineend = "square") +
+  geom_hline(yintercept = c(-0.5, 0.5),
+             alpha = 0.5,
+             color = "black",
+             size = lineThick*mmToLineUnit,
+             lineend = "square", linetype = "dashed")
+
+
+width <- panelSize(1.1)*mmToInch
+height <- panelSize(1.5)*mmToInch
+fileName <- paste0("violin_", "G1vsAsync_AsyncCalled")
+svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
+print(p3)
+dev.off()  
+
+
+
+########################################################################################
+data <- fread(here(commonLoopDir, "loopScore_chromosight.tsv")) %>%
+  dplyr::filter(Anno %in% c("P-P", "P-E", "E-E"))
+
+## Plot diff score
+plot_df_delta <- data %>%
+  dplyr::mutate(
+    delta_G1 = score_dTAG - score_DMSO,
+    delta_Async = score_AID - score_UT
+  )
+
+g1specific <- plot_df_delta %>% dplyr::filter(delta_G1 < -0.2, 
+                                        abs(delta_Async) < 0.2,
+                                        delta_G1 - delta_Async < -0.2)
+asyncspecific <- plot_df_delta %>% dplyr::filter(delta_Async < -0.2, 
+                                        abs(delta_G1) < 0.2,
+                                        delta_Async - delta_G1 < -0.2)
+print(nrow(g1specific))
+
+ncBoth <- plot_df_delta %>% dplyr::filter(abs(delta_Async) < 0.2, 
+                                        abs(delta_G1) < 0.2)
+print(nrow(ncBoth))
+
+plot_df_delta <- plot_df_delta %>% dplyr::mutate(
+  group = case_when(
+    id %in% ncBoth$id ~ "Common Resilient",
+    id %in% g1specific$id ~ "G1 specific",
+    id %in% asyncspecific$id ~ "Async specific",
+
+    TRUE ~ NA
+  )
+)
+
+temp <- plot_df_delta %>% dplyr::filter(!is.na(group))
+
+# p2 <- ggplot(temp, aes(x = score_DMSO, y = score_UT)) + geom_point() + coord_fixed(xlim = c(-0.5, 1), ylim = c(-0.5, 1)) + facet_wrap(~group) + geom_abline(intercept = 0, abline = 1)
+
+p <- ggplot(temp, aes(x = score_DMSO, y = score_UT)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") + # Reference line
+  geom_point(alpha=0.1, size = 1) +
+  # geom_hex(bins = 100) + # Use geom_point(alpha=0.1) if you have < 5000 points
+  facet_wrap(~group, nrow = 1) + 
+  
+  scale_fill_viridis_c() +
+  coord_fixed(xlim = c(-0.5, 1), ylim = c(-0.5, 1)) +
+  theme_classic() + 
+  labs(x = "Score (G1 ESC DMSO)", y = "Score (Async ESC UT)") + 
+  geom_abline(slope = 1, intercept = 0, col = "grey50", linetype = "dashed",
+              color = "black",
+              size = lineThick*mmToLineUnit,
+              lineend = "square") +
+  geom_abline(slope = 1, intercept = -diffCutoff, col = "grey", linetype = "dotted",
+              color = "black",
+              size = lineThick*mmToLineUnit,
+              lineend = "square") +
+  geom_abline(slope = 1, intercept = diffCutoff, col = "grey", linetype = "dotted",
+              color = "black",
+              size = lineThick*mmToLineUnit,
+              lineend = "square") +
+  geom_hline(yintercept = 0, alpha = 0.5, color = "grey",
+             color = "black",
+             size = lineThick*mmToLineUnit,
+             lineend = "square") +
+  geom_vline(xintercept = 0, alpha = 0.5, color = "grey",
+             color = "black",
+             size = lineThick*mmToLineUnit,
+             lineend = "square") +
+  theme(
+    legend.position = "none",
+    strip.text = element_text(
+      size = fontSizeS,       # Or use a multiplier like 'fontSizeS * 1.2'
+      family = fontType,
+      color = "black"
+    ),
+    plot.title = element_text(
+      hjust = 0.5,
+      size = fontSizeS,
+      family = fontType
+    ),
+    axis.title = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+  )
+
+name <- "scatterplot_G1vsAsync_G1Called"
+width <- panelSize(3)*mmToInch
+height <- panelSize(2)*mmToInch  
+svglite(here(figDir,
+             paste0(name, ".svg")),
+        width = width, height = height)
+plot(p)
+dev.off()
+
+
+# temp_long <- temp %>% dplyr::select(group, score_DMSO, score_UT) %>% pivot_longer(cols = c(2, 3))
+# p3<- ggplot(temp_long, aes(x = name, y = value)) + geom_violin() + facet_wrap(~group) + geom_boxplot()
+# 
+
+
+temp_long <- temp %>% dplyr::select(group, score_DMSO, score_UT) %>% pivot_longer(cols = c(2, 3))
+p1 <- ggplot(temp_long, aes(x = name, y = value)) + geom_violin() + facet_wrap(~group) + geom_boxplot()
+pseudo_ooe <- 0.01
+plot_df_ooe <- temp %>%
+  dplyr::select(id, ooe_DMSO, ooe_UT, group) %>%
+  dplyr::filter(!is.na(ooe_DMSO), !is.na(ooe_UT)) %>%
+  dplyr::mutate(
+    ooe_DMSO = if_else(ooe_DMSO == 0, pseudo_ooe, ooe_DMSO),
+    ooe_UT = if_else(ooe_UT == 0, pseudo_ooe, ooe_UT),
+    fc    = log2(ooe_UT / ooe_DMSO)
+  )
+
+plot_df_ooe$group <- factor(plot_df_ooe$group, levels = c("Async specific", "Common Resilient", "G1 specific"))
+
+p3 <- ggplot(plot_df_ooe, aes(x = group, y = fc, fill = group)) +
+  geom_violin(linewidth = lineThick * mmToLineUnit, lineend = "square", alpha = .4, show.legend = FALSE,
+              color = "black") + 
+  geom_boxplot(width = 0.3, color = "black",
+               linewidth = lineThick * mmToLineUnit, lineend = "square",
+               outlier.shape = NA,  alpha = 0.6, show.legend = FALSE) + 
+  theme_classic() + 
+  stat_summary(
+    aes(group = group), fun = mean,
+    geom = "point", shape = 21, size = 0.5,
+    fill = "black", color = "black", position = position_dodge(.3)
+  ) +
+  coord_cartesian(ylim = c(-3, 3)) +
+  scale_fill_manual(values = c("grey30", "grey30", "grey30")) +
+  theme(
+    axis.title.x = element_blank(),
+    axis.title.y = element_text(
+      size = fontSizeM,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text.x = element_text(
+      size = fontSizeM,
+      angle = 45,      # Rotate x-axis labels 45 degrees
+      hjust = 1,       # Adjust horizontal justification
+      vjust = 1        # Adjust vertical justification
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+    legend.text = element_text(family = fontType, size = fontSizeS),
+    legend.title = element_text(family = fontType, size = fontSizeS)
+  ) +labs(y = "log2 fc of obs/exp")  +
+  geom_hline(yintercept = 0,
+             alpha = 1,
+             color = "black",
+             size = lineThick*mmToLineUnit,
+             lineend = "square") +
+  geom_hline(yintercept = c(-0.5, 0.5),
+             alpha = 0.5,
+             color = "black",
+             size = lineThick*mmToLineUnit,
+             lineend = "square", linetype = "dashed")
+
+
+width <- panelSize(1.1)*mmToInch
+height <- panelSize(1.5)*mmToInch
+fileName <- paste0("violin_", "G1vsAsync_G1Called")
+svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
+print(p3)
+dev.off()  
+
+
+#####################################
+
+data <- fread(here(commonLoopDir, "loopScore_chromosight.tsv"))
+data <- data %>% dplyr::mutate(delta = score_dTAG - score_DMSO) %>%
+    dplyr::mutate(AnnoGroup = case_when(
+      Anno %in% c("P-P", "P-E", "E-E") ~ "Reg (P-P, P-E, E-E)",
+      
+      Anno %in% c("P-S", "E-S") ~ "Reg/Str mixed",
+      Anno %in% c("P-SP", "P-SE", "E-SP", "E-SE") ~ "Reg/Str mixed",
+      Anno %in% c("SP-SP", "SP-SE", "SE-SE") ~ "Reg/Str mixed",
+      Anno %in% c("SP-S", "SE-S") ~ "Reg/Str mixed",
+      
+      Anno %in% c("S-S", "S-X") ~ "Str (S-S, S-X)",
+      Anno %in% c("P-X", "E-X") ~ "Reg-Other",
+      Anno %in% c("SP-X", "SE-X") ~ "StrReg-Other",
+      Anno %in% c("X-X") ~ "Other",
+      TRUE ~ NA
+    ))
+
+pseudo_ooe <- 0.01
+plot_df_ooe <- data %>%
+  dplyr::select(id, ooe_DMSO, ooe_dTAG, AnnoGroup) %>%
+  dplyr::filter(!is.na(ooe_DMSO), !is.na(ooe_dTAG)) %>%
+  dplyr::mutate(
+    ooe_DMSO = if_else(ooe_DMSO == 0, pseudo_ooe, ooe_DMSO),
+    ooe_dTAG = if_else(ooe_dTAG == 0, pseudo_ooe, ooe_dTAG),
+    fc    = log2(ooe_dTAG / ooe_DMSO)
+  )
+
+data$AnnoGroup <- factor(data$AnnoGroup, levels = c("Reg (P-P, P-E, E-E)", "Reg/Str mixed", "Str (S-S, S-X)",
+                                                    "Reg-Other", "StrReg-Other", "Other"))
+
+p2 <- ggplot(data, aes(x = score_DMSO, y = delta)) +
+  coord_fixed(xlim = c(-0.5, 1), ylim = c(-1, 1)) + facet_wrap(~AnnoGroup, nrow = 1) +
+  # geom_point(alpha=0.1, size = 1) +
+  geom_hex(bins = 100) +
+  scale_fill_viridis_c() +
+  # coord_fixed(xlim = c(-0.5, 1), ylim = c(-0.5, 1)) +
+  theme_classic() + 
+  labs(x = "Score (G1 ESC DMSO)", y = "delta") + 
+  geom_hline(yintercept = 0, alpha = 0.5, color = "grey",
+             color = "black",
+             size = lineThick*mmToLineUnit,
+             lineend = "square") +
+  geom_vline(xintercept = 0, alpha = 0.5, color = "grey",
+             color = "black",
+             size = lineThick*mmToLineUnit,
+             lineend = "square") +
+  theme(
+    legend.position = "none",
+    strip.text = element_text(
+      size = fontSizeS,       # Or use a multiplier like 'fontSizeS * 1.2'
+      family = fontType,
+      color = "black"
+    ),
+    plot.title = element_text(
+      hjust = 0.5,
+      size = fontSizeS,
+      family = fontType
+    ),
+    axis.title = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+  )
+ 
+width <- panelSize(5)*mmToInch
+height <- panelSize(2)*mmToInch
+fileName <- paste0("Scatterplot_", "Strength_vs_loss_score")
+svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
+print(p2)
+dev.off()  
+
+plot_df_ooe$AnnoGroup <- factor(plot_df_ooe$plot_df_ooe, levels = c("Reg (P-P, P-E, E-E)", "Reg/Str mixed", "Str (S-S, S-X)",
+                                                    "Reg-Other", "StrReg-Other", "Other"))
+
+
+p3 <- ggplot(plot_df_ooe, aes(x = ooe_DMSO, y = fc)) + facet_wrap(~AnnoGroup, nrow = 1) + scale_x_log10(limits = c(0.1, 20)) +
+    geom_hex(bins = 100) +
+  scale_fill_viridis_c() +
+  scale_y_continuous(limits = c(-5, 5)) +
+  theme_classic() + 
+  labs(x = "OOE (G1 ESC DMSO)", y = "log2fc of obs/exp (dTAG vs DMSO)") + 
+  geom_hline(yintercept = 0, alpha = 0.5, color = "grey",
+             color = "black",
+             size = lineThick*mmToLineUnit,
+             lineend = "square") +
+  geom_vline(xintercept = 0, alpha = 0.5, color = "grey",
+             color = "black",
+             size = lineThick*mmToLineUnit,
+             lineend = "square") +
+  theme(
+    legend.position = "none",
+    strip.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "black"
+    ),
+    plot.title = element_text(
+      hjust = 0.5,
+      size = fontSizeS,
+      family = fontType
+    ),
+    axis.title = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+  )
+ 
+width <- panelSize(5)*mmToInch
+height <- panelSize(1.5)*mmToInch
+fileName <- paste0("Scatterplot_", "Strength_vs_loss_OOE")
+svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
+print(p3)
+dev.off()  
+
+``` 
+
+G1 specific vs CDF
+```{r}
+commonLoopDir <- here("../data/loop_analysis")
+diffDir <- here("../data/RNA_diff")
+name <- "chromosight"
+
+geneAnnoData <- loadLoopAnnoData(here(commonLoopDir, paste0("loopScore_", name, "_p-n_complex_ensemblList.tsv"))) %>%
+  dplyr::mutate(distance = start2 - start1,
+                loopID = paste(chrom1, start1, start2, sep = "_"))
+
+
+geneAnnoData <- geneAnnoData %>%
+  dplyr::mutate(
+    delta_G1 = score_dTAG - score_DMSO,
+    delta_Async = score_AID - score_UT
+  )
+
+g1specific <- geneAnnoData %>% dplyr::filter(delta_G1 < -0.2, 
+                                        abs(delta_Async) < 0.2,
+                                        delta_G1 - delta_Async < -0.2)
+asyncspecific <- geneAnnoData %>% dplyr::filter(delta_Async < -0.2, 
+                                        abs(delta_G1) < 0.2,
+                                        delta_Async - delta_G1 < -0.2)
+
+ncBoth <- geneAnnoData %>% dplyr::filter(abs(delta_Async) < 0.2, 
+                                        abs(delta_G1) < 0.2)
+
+geneAnnoData <- geneAnnoData %>% dplyr::mutate(
+  group = case_when(
+    id %in% ncBoth$id ~ "Common Resilient",
+    id %in% g1specific$id ~ "G1 specific",
+    id %in% asyncspecific$id ~ "Async specific",
+    TRUE ~ NA
+  )
+) %>%
+  dplyr::filter(Anno %in% c("P-P", "P-E", "E-E"),
+                !is.na(group))
+result <- geneAnnoData %>% dplyr::select(group, gene) %>%
+  unnest(gene) %>% 
+  dplyr::count(gene, group) %>%
+  pivot_wider(names_from = group, values_from = n, values_fill = 0)
+final_result <- result %>%
+  mutate(group = case_when(
+    `G1 specific` >= 1 & `Async specific` == 0 ~ "G1",
+    `Async specific` >= 1 & `G1 specific` == 0 ~ "Async",
+    `Common Resilient` >= 1 ~ "common",
+    TRUE ~ "other" 
+  ))
+
+### Plotting CDF
+diff.RNA <- fread(here(diffDir, "diff_G1.dTAG_G1.2i.dTAG_vs_G1.2i.DMSO.tsv")) %>%
+  dplyr::select(ensembl_gene_id, log2FoldChange, shrinked_log2FC, padj, external_gene_name) %>%
+   dplyr::mutate(absLog2FC = abs(log2FoldChange))
+
+temp <- diff.RNA %>% left_join(final_result %>% dplyr::select(gene, group), by = c("ensembl_gene_id" = "gene")) %>%
+  drop_na(group)
+
+# 
+ks_result1 <- ks.test(
+  temp %>% dplyr::filter(group == "common") %>% pull(absLog2FC),
+  temp %>% dplyr::filter(group == "G1") %>% pull(absLog2FC)
+)
+ks_result2 <- ks.test(
+  temp %>% dplyr::filter(group == "common") %>% pull(absLog2FC),
+  temp %>% dplyr::filter(group == "Async") %>% pull(absLog2FC)
+)
+ks_result3 <- ks.test(
+  temp %>% dplyr::filter(group == "G1") %>% pull(absLog2FC),
+  temp %>% dplyr::filter(group == "Async") %>% pull(absLog2FC)
+)
+
+temp$group <- factor(temp$group, levels = c("Async", "common", "G1"))
+p <- ggplot(temp, aes(x = absLog2FC, color = group)) +
+  scale_color_manual(values = (c("#00a087", "#4dbbd5", "#e64b35"))) +
+  stat_ecdf(size = 0.4, linewidth = lineMedium * mmToLineUnit, lineend = "square" ) + # Use stat_ecdf to plot the empirical CDF
+  labs(
+    x = "Abs. log2(fold change)",
+    y = "Cumulative Probability"
+  ) + coord_cartesian(xlim = c(0, 1.5)) +
+  theme_classic() + # Clean theme
+  theme(
+    axis.title = element_text(
+      size = fontSizeM,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+    legend.position = "none",
+    legend.text = element_text(family = fontType, size = fontSizeS),
+    legend.title = element_text(family = fontType, size = fontSizeS)
+  ) + scale_y_continuous(labels = scales::number_format(accuracy = 0.1))
+# 
+# 
+fileName <- paste0("G1specific_abslog2FC_dTAGvsDMSO")
+width <- 33*mmToInch
+height <-33*mmToInch
+png(here(figDir, paste0(fileName, ".png")), res = 600, unit = "in", height = height, width = width)
+print(p)
+dev.off()
+svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
+print(p)
+dev.off()
+
+
+
+
+
+### Plotting CDF
+diff.RNA <- fread(here(dataDir, "../RNA_pub", "Hsieh_2022_RAD21_3h.csv")) %>% 
+  dplyr::mutate(ensembl_gene_id = str_replace(ens_gene, "\\.[0-9]*$", "")) %>%
+  dplyr::select(ensembl_gene_id, log2FoldChange, padj, ext_gene) %>%
+   dplyr::mutate(absLog2FC = abs(log2FoldChange))
+
+temp <- diff.RNA %>% left_join(final_result %>% dplyr::select(gene, group), by = c("ensembl_gene_id" = "gene")) %>%
+  drop_na(group)
+
+# 
+ks_result1 <- ks.test(
+  temp %>% dplyr::filter(group == "common") %>% pull(absLog2FC),
+  temp %>% dplyr::filter(group == "G1") %>% pull(absLog2FC)
+)
+ks_result2 <- ks.test(
+  temp %>% dplyr::filter(group == "common") %>% pull(absLog2FC),
+  temp %>% dplyr::filter(group == "Async") %>% pull(absLog2FC)
+)
+ks_result3 <- ks.test(
+  temp %>% dplyr::filter(group == "G1") %>% pull(absLog2FC),
+  temp %>% dplyr::filter(group == "Async") %>% pull(absLog2FC)
+)
+
+temp$group <- factor(temp$group, levels = c("Async", "common", "G1"))
+p <- ggplot(temp, aes(x = absLog2FC, color = group)) +
+  scale_color_manual(values = (c("#00a087", "#4dbbd5", "#e64b35"))) +
+  stat_ecdf(size = 0.4, linewidth = lineMedium * mmToLineUnit, lineend = "square" ) + # Use stat_ecdf to plot the empirical CDF
+  labs(
+    x = "Abs. log2(fold change)",
+    y = "Cumulative Probability"
+  ) + coord_cartesian(xlim = c(0, 1.5)) +
+  theme_classic() + # Clean theme
+  theme(
+    axis.title = element_text(
+      size = fontSizeM,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+    legend.position = "none",
+    legend.text = element_text(family = fontType, size = fontSizeS),
+    legend.title = element_text(family = fontType, size = fontSizeS)
+  ) + scale_y_continuous(labels = scales::number_format(accuracy = 0.1))
+# 
+# 
+fileName <- paste0("G1specific_abslog2FC_dTAGvsDMSO_onAsync")
+width <- 33*mmToInch
+height <-33*mmToInch
+png(here(figDir, paste0(fileName, ".png")), res = 600, unit = "in", height = height, width = width)
+print(p)
+dev.off()
+svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
+print(p)
+dev.off()
+
+```
+
+
 # [9] A485 dual
 ```{r}
 # Import gene grouping

@@ -2099,11 +2099,25 @@ geneList.NIPBL.48h <- (fread(here(dataDir, "diff_NIPBL-Exit_dTAG.Exit_vs_DMSO.Ex
   dplyr::filter(padj < 0.05, log2FoldChange < 0))$ensembl_gene_id
 
 
+geneList.AsyncESC3h <- (fread(here(dataDir, "../RNA_pub", "Hsieh_2022_RAD21_3h.csv")) %>% 
+  dplyr::mutate(ensembl_gene_id = str_replace(ens_gene, "\\.[0-9]*$", "")) %>%
+  dplyr::select(ensembl_gene_id, baseMean, log2FoldChange, padj, ext_gene) %>%
+    dplyr::filter(padj < 0.05, log2FoldChange < 0))$ensembl_gene_id
+geneList.AsyncESC12h <- (fread(here(dataDir, "../RNA_pub", "Hsieh_2022_RAD21_12h.csv")) %>% 
+  dplyr::mutate(ensembl_gene_id = str_replace(ens_gene, "\\.[0-9]*$", "")) %>%
+  dplyr::select(ensembl_gene_id, baseMean, log2FoldChange, padj) %>%
+    dplyr::filter(padj < 0.05, log2FoldChange < 0))$ensembl_gene_id
+geneList.AsyncESC24h <- (fread(here(dataDir, "../RNA_pub", "Hsieh_2022_RAD21_24h.csv")) %>% 
+  dplyr::mutate(ensembl_gene_id = str_replace(ens_gene, "\\.[0-9]*$", "")) %>%
+  dplyr::select(ensembl_gene_id, baseMean, log2FoldChange, padj) %>%
+    dplyr::filter(padj < 0.05, log2FoldChange < 0))$ensembl_gene_id
+
 
 my_gene_lists <- list(
   "G1ESC A485 Down" = geneList.G1A485,
   "G1ESC RAD21 Down" = geneList.G1ESC,
   "G1Epi RAD21 Down" = geneList.G1Epi,
+  "AsyncESC3h RAD21 Down" = geneList.AsyncESC3h,
   "AsyncEpi3h RAD21 Down" = geneList.RAD21.3h,
   "AsyncEpi22h RAD21 Down" = geneList.RAD21.22h,
   "AsyncEpi48h NIPBL Down" = geneList.NIPBL.48h
@@ -2166,13 +2180,171 @@ p <- pheatmap(
 )
 
 
-name <- paste0("heatmap_DEGoverlap")
-width <- panelSize(3.5)*mmToInch
-height <- panelSize(3.5)*mmToInch  
+name <- paste0("heatmap_DEGoverlap_v2")
+width <- panelSize(4)*mmToInch
+height <- panelSize(4)*mmToInch  
 svglite(here(figDir,
              paste0(name, ".svg")),
         width = width, height = height)
 plot(p)
 dev.off()
+```
+### GO
+```{r}
+temp <- (fread(here(dataDir, "../RNA_pub", "Hsieh_2022_RAD21_3h.csv")) %>% 
+  dplyr::mutate(ensembl_gene_id = str_replace(ens_gene, "\\.[0-9]*$", "")) %>%
+  dplyr::select(ensembl_gene_id, baseMean, log2FoldChange, padj, ext_gene) %>%
+    dplyr::filter(padj < 0.05, log2FoldChange < 0) %>%
+    dplyr::filter(!(ensembl_gene_id %in% c(geneList.G1ESC, geneList.G1Epi))))$ensembl_gene_id
+gene_background <- (fread(here(dataDir, "../RNA_pub", "Hsieh_2022_RAD21_3h.csv")) %>% 
+  dplyr::mutate(ensembl_gene_id = str_replace(ens_gene, "\\.[0-9]*$", "")) %>%
+  dplyr::select(ensembl_gene_id, baseMean, log2FoldChange, padj, ext_gene))$ensembl_gene_id
+
+
+GO.1 <- enrichGO(gene = geneList.AsyncESC3h, OrgDb = org.Mm.eg.db,
+                  keyType = "ENSEMBL", ont = "BP", readable = TRUE, universe = gene_background)
+GO.1.df <- as.data.frame(GO.1)
+GO.1.df$GeneRatio1 <- sapply(strsplit(GO.1.df$GeneRatio, "/"), function(x) as.numeric(x[1]) / as.numeric(x[2]))
+
+GO.2 <- enrichGO(gene = temp, OrgDb = org.Mm.eg.db,
+                  keyType = "ENSEMBL", ont = "BP", readable = TRUE, universe = gene_background)
+GO.2.df <- as.data.frame(GO.2)
+GO.2.df$GeneRatio1 <- sapply(strsplit(GO.2.df$GeneRatio, "/"), function(x) as.numeric(x[1]) / as.numeric(x[2]))
+GO.1.temp.df <- GO.1.df %>% dplyr::filter(!(ID %in% GO.2.df$ID))
+
+
+GOlist1 <- factor(c("GO:0044772", "GO:0060562", "GO:0019827", "GO:0002064", "GO:0006402"))
+
+dataToPlot <- GO.1.temp.df %>% dplyr::filter(ID %in% GOlist1) %>%
+  dplyr::arrange(desc(GeneRatio1))
+
+p <- ggplot(dataToPlot, aes(x = GeneRatio1, y = reorder(Description, GeneRatio1), fill = p.adjust)) +
+  geom_bar(stat = "identity") + geom_text(
+    aes(x = 0, label = Description),
+    color = "black",            # Text color
+    hjust = 0.05,               # Horizontal alignment (adjust as needed)
+    size = fontSizeS / 3,       # Adjust font size appropriately
+    family = fontType
+  ) +
+  scale_fill_gradient(low = "#CB333A", high = lighten( "#CB333A", amount = 0.9), name = "p.adjust", limits = c(0, 0.05),
+                      guide = guide_colorbar(
+                        barwidth = 1.5/5.08,  # Adjust width of the color bar
+                        barheight = 15/5.08,  # Adjust height of the color bar
+                        title.theme = element_text(size = fontSizeS)  # Set p.adjust label title size
+                      )) + 
+  labs(
+    x = "Gene Ratio", y = NULL
+  ) +theme_classic() +  # Apply theme_bw first, so custom theme settings come after
+  theme(
+    panel.background = element_rect(fill = "transparent"),  # Override theme_bw panel
+    axis.title = element_text(
+      size = fontSizeM,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text.x = element_text(
+      size = fontSizeS,         # Ensure size is set for x-axis text
+      family = fontType,
+      color = "#000000",
+    ),
+    axis.text.y = element_blank(),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick * mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick * mmToLineUnit,
+      lineend = "square"
+    ),
+    legend.text = element_text(family = fontType, size = fontSizeS),
+    legend.title = element_text(family = fontType, size = fontSizeS)
+  )
+
+fileName <- here(figDir, "GO_AsyncDown_G1Common")
+width <- panelSize(1.75)*mmToInch
+height <- panelSize(1.2)*mmToInch
+svglite(paste0(fileName, ".svg"), height = height, width = width)
+print(p)
+dev.off()
+
+
+
+GOlist2 <- factor(c("GO:0006397", "GO:0051169", "GO:0007051", "GO:1902850", "GO:0043487"))
+
+dataToPlot <- GO.2.df %>% dplyr::filter(ID %in% GOlist2) %>%
+  dplyr::arrange(desc(GeneRatio1))
+
+p <- ggplot(dataToPlot, aes(x = GeneRatio1, y = reorder(Description, GeneRatio1), fill = p.adjust)) +
+  geom_bar(stat = "identity") + geom_text(
+    aes(x = 0, label = Description),
+    color = "black",            # Text color
+    hjust = 0.05,               # Horizontal alignment (adjust as needed)
+    size = fontSizeS / 3,       # Adjust font size appropriately
+    family = fontType
+  ) +
+  scale_fill_gradient(low = "#CB333A", high = lighten( "#CB333A", amount = 0.9), name = "p.adjust", limits = c(0, 0.05),
+                      guide = guide_colorbar(
+                        barwidth = 1.5/5.08,  # Adjust width of the color bar
+                        barheight = 15/5.08,  # Adjust height of the color bar
+                        title.theme = element_text(size = fontSizeS)  # Set p.adjust label title size
+                      )) + 
+  labs(
+    x = "Gene Ratio", y = NULL
+  ) +theme_classic() +  # Apply theme_bw first, so custom theme settings come after
+  theme(
+    panel.background = element_rect(fill = "transparent"),  # Override theme_bw panel
+    axis.title = element_text(
+      size = fontSizeM,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text.x = element_text(
+      size = fontSizeS,         # Ensure size is set for x-axis text
+      family = fontType,
+      color = "#000000",
+    ),
+    axis.text.y = element_blank(),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick * mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick * mmToLineUnit,
+      lineend = "square"
+    ),
+    legend.text = element_text(family = fontType, size = fontSizeS),
+    legend.title = element_text(family = fontType, size = fontSizeS)
+  )
+
+fileName <- here(figDir, "GO_AsyncDown_AsyncUnique")
+width <- panelSize(1.75)*mmToInch
+height <- panelSize(1.2)*mmToInch
+svglite(paste0(fileName, ".svg"), height = height, width = width)
+print(p)
+dev.off()
+```
+
+```{r}
+temp <- (fread(here(diffDir, "diff_G1.dTAG_G1.2i.dTAG_vs_G1.2i.DMSO.tsv")) %>%
+  dplyr::filter(padj < 0.05, log2FoldChange < 0) %>%
+    dplyr::filter(!(ensembl_gene_id %in% c(geneList.AsyncESC3h))))$ensembl_gene_id
+gene_background <- (fread(here(diffDir, "diff_G1.dTAG_G1.2i.dTAG_vs_G1.2i.DMSO.tsv")))$ensembl_gene_id
+
+
+GO.1 <- enrichGO(gene = geneList.G1ESC, OrgDb = org.Mm.eg.db,
+                  keyType = "ENSEMBL", ont = "BP", readable = TRUE, universe = gene_background)
+GO.1.df <- as.data.frame(GO.1)
+GO.1.df$GeneRatio1 <- sapply(strsplit(GO.1.df$GeneRatio, "/"), function(x) as.numeric(x[1]) / as.numeric(x[2]))
+
+
+GO.2 <- enrichGO(gene = temp, OrgDb = org.Mm.eg.db,
+                  keyType = "ENSEMBL", ont = "BP", readable = TRUE, universe = gene_background)
+GO.2.df <- as.data.frame(GO.2)
+GO.2.df$GeneRatio1 <- sapply(strsplit(GO.2.df$GeneRatio, "/"), function(x) as.numeric(x[1]) / as.numeric(x[2]))
+
 ```
 

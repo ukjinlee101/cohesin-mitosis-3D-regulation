@@ -1457,3 +1457,142 @@ fwrite(consensus.loop.anno.tb, here(loopDir, paste0(name, "_annotated.tsv")),
        sep = "\t", col.names = TRUE)
 
 ```
+
+# Extracting scores per replicates
+```{r}
+commonLoopDir <- here("../data/loop_analysis")
+figDir <- here("../figure/loop_analysis")
+data <- fread(here(commonLoopDir, "loopScore_chromosight.tsv"))
+loopDir <- "/Volumes/UKJIN_SSD/MtoG1/data/loop_chromosight"
+
+resolutions <- c(25000, 10000, 5000)
+samples <- c("G1DMSO_B1", "G1DMSO_B2", 
+             "G1dTAG_B1", "G1dTAG_B3", 
+             "G1A485_B2", "G1A485_B3")
+
+# 2. Helper function to read a single file
+read_and_clean <- function(samp, res, dir) {
+  fname <- paste0(samp, "_union_", res, "bp_pu100pz100.tsv")
+  col_name <- paste0("score_", str_remove(samp, "^G1")) # e.g., score_DMSO_B1
+  
+  fread(here(dir, fname)) %>%
+    mutate(id = paste(chrom1, start1, end1, chrom2, start2, end2, sep = "_")) %>%
+    select(id, score) %>%
+    rename(!!col_name := score) # Dynamic renaming
+}
+
+# 3. Main execution: Iterate resolutions, then iterate samples
+score.tb <- map_dfr(resolutions, function(r) {
+  
+  # Read all samples for the current resolution into a list
+  list_of_dfs <- map(samples, ~ read_and_clean(.x, r, loopDir))
+  
+  # Join all samples for this resolution by 'id'
+  purrr::reduce(list_of_dfs, full_join, by = "id")
+  
+})
+
+data <- data %>% left_join(score.tb, by = c("id"))
+
+library(ggpubr)
+
+
+ggplot(data, aes(x = score_dTAG, y = score_dTAG_B1)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") + # Reference line
+  geom_hex(bins = 100) + # Heatmap style for density
+  geom_smooth(method = "lm", color = "red", size = 0.5) +
+  stat_cor(method = "pearson", label.x = -0.5, label.y = 0.9) + # Display R and p-value
+  scale_fill_viridis_c() + # Better color scale
+  coord_fixed(xlim = c(-0.5, 1), ylim = c(-0.5, 1)) +
+  theme_bw() +
+  labs(title = "Replicate Correlation", fill = "Count")
+
+
+plot_dat <- bind_rows(
+  data %>% select(x = score_DMSO, y = score_DMSO_B1) %>% mutate(comparison = "ESC-G1-DMSO Batch 1"),
+  data %>% select(x = score_DMSO, y = score_DMSO_B2) %>% mutate(comparison = "ESC-G1-DMSO Batch 2"),
+  data %>% select(x = score_dTAG, y = score_dTAG_B1) %>% mutate(comparison = "ESC-G1-dTAG Batch 1"),
+  data %>% select(x = score_dTAG, y = score_dTAG_B3) %>% mutate(comparison = "ESC-G1-dTAG Batch 2"),
+  data %>% select(x = score_A485, y = score_A485_B2) %>% mutate(comparison = "ESC-G1-A485 Batch 1"),
+  data %>% select(x = score_A485, y = score_A485_B3) %>% mutate(comparison = "ESC-G1-A485 Batch 2")
+)
+
+plot_dat$comparison <- factor(plot_dat$comparison, levels = c("ESC-G1-DMSO Batch 1", "ESC-G1-DMSO Batch 2",
+                                                              "ESC-G1-dTAG Batch 1", "ESC-G1-dTAG Batch 2",
+                                                              "ESC-G1-A485 Batch 1", "ESC-G1-A485 Batch 2"))
+# 2. Plot with Facet Wrap
+diffCutoff = 0.2
+p <- ggplot(plot_dat, aes(x = x, y = y)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") + # Reference line
+  geom_hex(bins = 100) + # Use geom_point(alpha=0.1) if you have < 5000 points
+  geom_smooth(method = "lm", color = "red", size = 0.5) + 
+  stat_cor(method = "pearson", label.y = 0.9, color = "black",p.digits = 0.0001,
+           color = "black",
+      family = fontType,            # Match font family
+      size = fontSizeS / .pt) + # Adds R and p-value
+  
+  # "scales = free" allows axes to adjust if ranges differ between conditions
+  facet_wrap(~comparison, nrow = 1) + 
+  
+  scale_fill_viridis_c() +
+  coord_fixed(xlim = c(-0.5, 1), ylim = c(-0.5, 1)) +
+  theme_classic() + 
+  labs(x = "Score (Pooled)", y = "Score (Batch)") + 
+  geom_abline(slope = 1, intercept = 0, col = "grey50", linetype = "dashed",
+                color = "black",
+                size = lineThick*mmToLineUnit,
+                lineend = "square") +
+    geom_abline(slope = 1, intercept = -diffCutoff, col = "grey", linetype = "dotted",
+                color = "black",
+                size = lineThick*mmToLineUnit,
+                lineend = "square") +
+    geom_abline(slope = 1, intercept = diffCutoff, col = "grey", linetype = "dotted",
+                color = "black",
+                size = lineThick*mmToLineUnit,
+                lineend = "square") +
+    geom_hline(yintercept = 0, alpha = 0.5, color = "grey",
+               color = "black",
+               size = lineThick*mmToLineUnit,
+               lineend = "square") +
+    geom_vline(xintercept = 0, alpha = 0.5, color = "grey",
+               color = "black",
+               size = lineThick*mmToLineUnit,
+               lineend = "square") +
+  theme(
+      legend.position = "none",
+      strip.text = element_text(
+      size = fontSizeS,       # Or use a multiplier like 'fontSizeS * 1.2'
+      family = fontType,
+      color = "black"
+    ),
+      plot.title = element_text(
+        hjust = 0.5,
+        size = fontSizeS,
+        family = fontType
+      ),
+      axis.title = element_text(
+        size = fontSizeS,
+        family = fontType,
+        color = "#000000"
+      ),
+      axis.text = element_text(
+        size = fontSizeS,
+        family = fontType,
+        color = "#000000"
+      ),
+      axis.line = element_line(
+        color = "#000000",
+        size = lineThick*mmToLineUnit,
+        lineend = "square"
+      ),
+      axis.ticks = element_line(
+        color = "#000000",
+        size = lineThick*mmToLineUnit,
+        lineend = "square"
+      ),
+      panel.background = element_rect(fill = "transparent"),
+    )
+
+
+```
+
