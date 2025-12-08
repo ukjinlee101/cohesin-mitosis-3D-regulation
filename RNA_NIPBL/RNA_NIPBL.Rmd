@@ -2112,12 +2112,16 @@ geneList.AsyncESC24h <- (fread(here(dataDir, "../RNA_pub", "Hsieh_2022_RAD21_24h
   dplyr::select(ensembl_gene_id, baseMean, log2FoldChange, padj) %>%
     dplyr::filter(padj < 0.05, log2FoldChange < 0))$ensembl_gene_id
 
+geneList.AsyncChaudhury <- (fread(here(dataDir, "../RNA_pub", "Narita_2025_RAD21_processed.csv")) %>%
+  dplyr::filter(group %in% c("H.D", "S.D", "I.D")))$ensembl_gene_id
+
 
 my_gene_lists <- list(
   "G1ESC A485 Down" = geneList.G1A485,
   "G1ESC RAD21 Down" = geneList.G1ESC,
   "G1Epi RAD21 Down" = geneList.G1Epi,
   "AsyncESC3h RAD21 Down" = geneList.AsyncESC3h,
+  "AsyncESC RAD21 Chaudhury" = geneList.AsyncChaudhury,
   "AsyncEpi3h RAD21 Down" = geneList.RAD21.3h,
   "AsyncEpi22h RAD21 Down" = geneList.RAD21.22h,
   "AsyncEpi48h NIPBL Down" = geneList.NIPBL.48h
@@ -2327,6 +2331,30 @@ svglite(paste0(fileName, ".svg"), height = height, width = width)
 print(p)
 dev.off()
 ```
+
+### GO
+```{r}
+temp <- (fread(here(dataDir, "../RNA_pub", "Narita_2025_RAD21_processed.csv")) %>% 
+  dplyr::filter(group %in% c("H.D", "S.D", "I.D")) %>%
+    dplyr::filter(!(ensembl_gene_id %in% c(geneList.G1ESC, geneList.G1Epi))))$ensembl_gene_id
+gene_background <- (fread(here(dataDir, "../RNA_pub", "Narita_2025_RAD21_processed.csv")) %>%
+                      dplyr::filter(!is.na(EUSeq.AID.Rad21.ESC_IAA_500uM_TC240_logFC)))$ensembl_gene_id
+
+
+GO.1 <- enrichGO(gene = unique(geneList.AsyncChaudhury), OrgDb = org.Mm.eg.db,
+                  keyType = "ENSEMBL", ont = "BP", readable = TRUE, universe = gene_background)
+GO.1.df <- as.data.frame(GO.1)
+GO.1.df$GeneRatio1 <- sapply(strsplit(GO.1.df$GeneRatio, "/"), function(x) as.numeric(x[1]) / as.numeric(x[2]))
+
+GO.2 <- enrichGO(gene = unique(temp), OrgDb = org.Mm.eg.db,
+                  keyType = "ENSEMBL", ont = "BP", readable = TRUE, universe = gene_background)
+GO.2.df <- as.data.frame(GO.2)
+GO.2.df$GeneRatio1 <- sapply(strsplit(GO.2.df$GeneRatio, "/"), function(x) as.numeric(x[1]) / as.numeric(x[2]))
+# GO.1.temp.df <- GO.1.df %>% dplyr::filter(!(ID %in% GO.2.df$ID))
+
+
+```
+
 
 ```{r}
 temp <- (fread(here(diffDir, "diff_G1.dTAG_G1.2i.dTAG_vs_G1.2i.DMSO.tsv")) %>%

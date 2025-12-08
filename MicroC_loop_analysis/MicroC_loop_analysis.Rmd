@@ -48,9 +48,9 @@ options(scipen=999)
 ```{r}
 # ENSEMBL DATABASE
 # v102 is for the latest mm10 version
-# ensembl.v102 <- useMart(host = "https://nov2020.archive.ensembl.org",
-#                        biomart = "ENSEMBL_MART_ENSEMBL",
-#                        dataset = "mmusculus_gene_ensembl")
+ensembl.v102 <- useMart(host = "https://nov2020.archive.ensembl.org",
+                       biomart = "ENSEMBL_MART_ENSEMBL",
+                       dataset = "mmusculus_gene_ensembl")
 ```
 ## COLOR PALETTE
 ```{r}
@@ -7122,7 +7122,39 @@ dev.off()
 # wilcox.test(a, b)
 ```
 
+### [Rev2] Enrichment of EpiLC specific H3K27ac on loops
+```{r}
+peak.H3K27ac.EpiLCspecific <- importPeak(here(refDir, "ChIP", "differential", "H3K27ac_diff_specific_EpiLC.bed"))
 
+#-------------------------------------------------------------------------------
+# LOADING LOOPS
+### Importing differential regulatory loops & extract anchor
+commonLoopDir <- here("../data/loop_analysis")
+loop.all <- fread(here(commonLoopDir, "loopScore_chromosight.tsv"))
+anchor.all <- (extractAnchor(loop.all))
+
+loop.up <- fread(here(commonLoopDir, "chromosight_score_all_EpidTAGvsEpiDMSO_diffCutoff0.2_UP.bedpe"))
+anchor.up <- (extractAnchor(loop.up))
+
+loop.no <- fread(here(commonLoopDir, "chromosight_score_all_EpidTAGvsEpiDMSO_diffCutoff0.2_NO.bedpe"))
+anchor.no <- (extractAnchor(loop.no))
+
+loop.upno <- bind_rows(loop.up, loop.no)
+anchor.upno <- (extractAnchor(loop.upno))
+
+
+# Selecting same number of extreme down loops
+loop.down <- fread(here(commonLoopDir, "chromosight_score_all_EpidTAGvsEpiDMSO_diffCutoff0.2_DOWN.bedpe"))
+anchor.down <- (extractAnchor(loop.down))
+overlaps <- findOverlaps(anchor.down, atac.gr)
+anchor.down <- pintersect(anchor.down[queryHits(overlaps)], atac.gr[subjectHits(overlaps)])
+
+length(subjectHits(findOverlaps(anchor.all, peak.H3K27ac.EpiLCspecific)))
+length(subjectHits(findOverlaps(anchor.upno, peak.H3K27ac.EpiLCspecific)))
+length(subjectHits(findOverlaps(anchor.down, peak.H3K27ac.EpiLCspecific)))
+
+
+```
 ## [4] Loop + Transcription (Chromosight) ESC
 ### [FIG] RNA-seq loopscore scatterplot
 ```{r}
@@ -7285,6 +7317,87 @@ svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
 print(p)
 dev.off()
 ```
+### [Rev2] Grouping based on presence of DOWN loop
+```{r}
+alpha <- 0.05
+fcCutoff <- 0.5
+diffCutoff <- 0.2
+commonLoopDir <- here("../data/loop_analysis")
+diffDir <- here("../data/RNA_diff")
+name <- "chromosight"
+# name <- "chromosightAdjusted"
+
+geneAnnoData <- loadLoopAnnoData(here(commonLoopDir, paste0("loopScore_", name, "_p-n_complex_ensemblList.tsv"))) %>%
+  dplyr::mutate(diff = score_dTAG - score_DMSO)
+
+temp <- geneAnnoData %>%
+  dplyr::select(diff, gene) %>%
+  unnest(gene) %>%
+  group_by(gene) %>%
+  summarize(
+    flag_low_diff = any(diff < -0.2),
+    .groups = 'drop'
+  )
+
+diff.RNA <- fread(here(diffDir, "diff_G1.dTAG_G1.2i.dTAG_vs_G1.2i.DMSO.tsv")) %>%
+  dplyr::select(ensembl_gene_id, log2FoldChange, shrinked_log2FC, padj)
+
+temp <- left_join(temp, diff.RNA, by = c("gene" = "ensembl_gene_id"))
+temp <- temp %>% dplyr::mutate(absLog2FC = abs(log2FoldChange))
+
+ks_result1 <- ks.test(
+  temp %>% dplyr::filter(flag_low_diff) %>% pull(absLog2FC),
+  temp %>% dplyr::filter(!flag_low_diff) %>% pull(absLog2FC)
+)
+convPvalue(ks_result1$p.value)
+
+p <- ggplot(temp, aes(x = absLog2FC, color = flag_low_diff)) +
+  scale_color_manual(values = rev(c("#F28E2C", "#777777"))) +
+  stat_ecdf(size = 0.4, linewidth = lineMedium * mmToLineUnit, lineend = "square" ) + # Use stat_ecdf to plot the empirical CDF
+  labs(
+    x = "Abs. log2(fold change)",
+    y = "Cumulative Probability"
+  ) + coord_cartesian(xlim = c(0, 1.5)) +
+  theme_classic() + # Clean theme
+  theme(
+    axis.title = element_text(
+      size = fontSizeM,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+    legend.position = "none",
+    legend.text = element_text(family = fontType, size = fontSizeS),
+    legend.title = element_text(family = fontType, size = fontSizeS),
+  ) + scale_y_continuous(labels = scales::number_format(accuracy = 0.1))
+
+
+fileName <- paste0("DOWNloopPresence_avgLog2FC_cdf")
+width <- 33*mmToInch
+height <-33*mmToInch
+png(here(figDir, paste0(fileName, ".png")), res = 600, unit = "in", height = height, width = width)
+print(p)
+dev.off()
+svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
+print(p)
+dev.off()
+```
+
 
 ### Link TAD to gene
 ```{r}
@@ -8143,6 +8256,7 @@ dev.off()
 
 ```
 
+
 ### ChIP peak density
 #### [FIG] H3K4me3 peak number per 10kb
 ```{r}
@@ -8580,7 +8694,7 @@ temp2 <- tempSum %>% rowwise() %>% mutate(total = length(anno),
                                           num_str = num_ps + num_sps + num_spn
 )
 saveRDS(temp2, here("../data", "rds", "geneLoopNum.rds"))
-
+temp2 <- readRDS(here("../data", "rds", "geneLoopNum.rds"))
 loopType <- temp2 %>% group_by(group) %>% summarise(num_pp = sum(num_pp),
                                                     num_pe = sum(num_pe),
                                                     # num_str = sum(num_str),
@@ -12472,6 +12586,7 @@ svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
 print(p)
 dev.off()
 ```
+
 
 # [6] Visualization of heatmaps
 https://bioconductor.org/books/devel/OHCA/pages/visualization.html
@@ -16495,6 +16610,17 @@ plot_df_ooe <- temp %>%
 
 plot_df_ooe$group <- factor(plot_df_ooe$group, levels = c("Async specific", "Common Resilient", "G1 specific"))
 
+getPvalWilcox <- function(data, group1, group2){
+  distance1 <- (data %>% dplyr::filter(group == group1) )$fc
+  distance2 <- (data %>% dplyr::filter(group == group2) )$fc
+  wil <- wilcox.test(distance1, distance2)
+  return(wil)
+}
+getPvalWilcox(plot_df_ooe, "G1 specific", "Common Resilient")
+getPvalWilcox(plot_df_ooe, "G1 specific", "Async specific")
+getPvalWilcox(plot_df_ooe, "Async specific", "Common Resilient")
+
+
 p3 <- ggplot(plot_df_ooe, aes(x = group, y = fc, fill = group)) +
   geom_violin(linewidth = lineThick * mmToLineUnit, lineend = "square", alpha = .4, show.legend = FALSE,
               color = "black") + 
@@ -16692,6 +16818,16 @@ plot_df_ooe <- temp %>%
   )
 
 plot_df_ooe$group <- factor(plot_df_ooe$group, levels = c("Async specific", "Common Resilient", "G1 specific"))
+
+getPvalWilcox <- function(data, group1, group2){
+  distance1 <- (data %>% dplyr::filter(group == group1) )$fc
+  distance2 <- (data %>% dplyr::filter(group == group2) )$fc
+  wil <- wilcox.test(distance1, distance2)
+  return(wil)
+}
+getPvalWilcox(plot_df_ooe, "G1 specific", "Common Resilient")
+getPvalWilcox(plot_df_ooe, "G1 specific", "Async specific")
+getPvalWilcox(plot_df_ooe, "Async specific", "Common Resilient")
 
 p3 <- ggplot(plot_df_ooe, aes(x = group, y = fc, fill = group)) +
   geom_violin(linewidth = lineThick * mmToLineUnit, lineend = "square", alpha = .4, show.legend = FALSE,
@@ -17102,6 +17238,93 @@ dev.off()
 svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
 print(p)
 dev.off()
+
+
+### Plotting CDF
+diff.RNA <- fread(here(diffDir,"../RNA_pub", "Narita_2025_RAD21.csv")) %>%
+  dplyr::mutate(transcriptId = str_replace(transcriptId, "\\.[0-9]*$", ""))
+
+mm10.ensembl2gene = as_tibble(
+  getBM(
+    mart = ensembl.v102,
+    values = diff.RNA$transcriptId,
+    filters = "ensembl_transcript_id",
+    attributes = c("ensembl_transcript_id", "ensembl_gene_id")
+  )
+)
+
+diff.RNA <- diff.RNA %>%
+  dplyr::full_join(mm10.ensembl2gene, by = c("transcriptId" = "ensembl_transcript_id")) %>%
+  dplyr::mutate(absLog2FC = abs(EUSeq.AID.Rad21.ESC_IAA_500uM_TC240_logFC))
+  
+fwrite(diff.RNA, here(diffDir,"../RNA_pub", "Narita_2025_RAD21_processed.csv"))
+  
+temp <- diff.RNA %>% left_join(final_result %>% dplyr::select(gene, group), by = c("ensembl_gene_id" = "gene")) %>%
+  drop_na(group)
+
+# 
+ks_result1 <- ks.test(
+  temp %>% dplyr::filter(group == "common") %>% pull(absLog2FC),
+  temp %>% dplyr::filter(group == "G1") %>% pull(absLog2FC)
+)
+ks_result2 <- ks.test(
+  temp %>% dplyr::filter(group == "common") %>% pull(absLog2FC),
+  temp %>% dplyr::filter(group == "Async") %>% pull(absLog2FC)
+)
+ks_result3 <- ks.test(
+  temp %>% dplyr::filter(group == "G1") %>% pull(absLog2FC),
+  temp %>% dplyr::filter(group == "Async") %>% pull(absLog2FC)
+)
+
+temp$group <- factor(temp$group, levels = c("Async", "common", "G1"))
+p <- ggplot(temp, aes(x = absLog2FC, color = group)) +
+  scale_color_manual(values = (c("#00a087", "#4dbbd5", "#e64b35"))) +
+  stat_ecdf(size = 0.4, linewidth = lineMedium * mmToLineUnit, lineend = "square" ) + # Use stat_ecdf to plot the empirical CDF
+  labs(
+    x = "Abs. log2(fold change)",
+    y = "Cumulative Probability"
+  ) + coord_cartesian(xlim = c(0, 1.5)) +
+  theme_classic() + # Clean theme
+  theme(
+    axis.title = element_text(
+      size = fontSizeM,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.text = element_text(
+      size = fontSizeS,
+      family = fontType,
+      color = "#000000"
+    ),
+    axis.line = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    axis.ticks = element_line(
+      color = "#000000",
+      size = lineThick*mmToLineUnit,
+      lineend = "square"
+    ),
+    panel.background = element_rect(fill = "transparent"),
+    legend.position = "none",
+    legend.text = element_text(family = fontType, size = fontSizeS),
+    legend.title = element_text(family = fontType, size = fontSizeS)
+  ) + scale_y_continuous(labels = scales::number_format(accuracy = 0.1))
+# 
+# 
+fileName <- paste0("G1specific_abslog2FC_dTAGvsDMSO_onAsync_Chaudhury")
+width <- 33*mmToInch
+height <-33*mmToInch
+png(here(figDir, paste0(fileName, ".png")), res = 600, unit = "in", height = height, width = width)
+print(p)
+dev.off()
+svglite(here(figDir, paste0(fileName, ".svg")),  height = height, width = width)
+print(p)
+dev.off()
+
+
+
 
 ```
 
