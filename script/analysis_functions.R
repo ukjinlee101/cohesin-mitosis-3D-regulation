@@ -25,6 +25,7 @@ lapply(pkgs, require, character.only = TRUE)
 lapply(bio_pkgs, require, character.only = TRUE)
 require(PLSDAbatch)
 require("DOSE")
+library(rtracklayer)
 
 # CLEANING
 rm(pkgs, bio_pkgs)
@@ -378,15 +379,27 @@ rnaseq_pairwiseDiff <- function(dds, contrast, output_prefix, alpha = 0.05, fold
   
   resLFCSort.tb <- mergedData %>% dplyr::arrange(padj)
   
-  mm10.ensembl2gene <- as_tibble(
-    getBM(
-      mart = ensembl.v102,
-      values = resLFCSort.tb$ensembl_gene_id,
-      filters = "ensembl_gene_id",
-      attributes = c("ensembl_gene_id", "external_gene_name")
-    )
-  )
+  # mm10.ensembl2gene <- as_tibble(
+  #   getBM(
+  #     mart = ensembl.v102,
+  #     values = resLFCSort.tb$ensembl_gene_id,
+  #     filters = "ensembl_gene_id",
+  #     attributes = c("ensembl_gene_id", "external_gene_name")
+  #   )
+  # )
   
+  gtf <- import("/Volumes/UKJIN_SSD/p300/reference/mm10/Mus_musculus.GRCm38.102.gtf")
+
+  mm10.ensembl2gene <- gtf %>%
+    as_tibble() %>%
+    filter(type == "gene") %>%
+    dplyr::select(
+      ensembl_gene_id = gene_id,
+      external_gene_name = gene_name
+    ) %>%
+    distinct() %>%
+    filter(ensembl_gene_id %in% resLFCSort.tb$ensembl_gene_id)
+
   resLFCSort.tb <- resLFCSort.tb %>%
     dplyr::full_join(mm10.ensembl2gene, by = c("ensembl_gene_id")) %>%
     dplyr::relocate(ensembl_gene_id, .before = baseMean) %>%
@@ -405,7 +418,7 @@ rnaseq_pairwiseDiff <- function(dds, contrast, output_prefix, alpha = 0.05, fold
   
   # Save data
   saveRDS(resLFCSort.tb, file = here(dataDir, "r_data", paste0("resLFCSort.tb_", output_prefix, ".rds")))
-  fwrite(out.tb, file = here(dataDir, paste0("diff_", output_prefix, ".tsv")), sep = "\t")
+  fwrite(out.tb, file = here(dataDir, "diff", paste0("diff_", output_prefix, ".tsv")), sep = "\t")
   
   # Save summary
   sink(file = here(dataDir, paste0("diff_", output_prefix, "_summary.txt")))
