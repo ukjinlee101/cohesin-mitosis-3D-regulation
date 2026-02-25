@@ -1,12 +1,10 @@
-# Post-mitotic transcriptional activation and 3D regulatory interactions show locus- and differentiation-specific sensitivity to cohesin depletion
+# Analysis code for Lee et al.
 
 This repository contains the analysis code for the following publication:
 
 > **Post-mitotic transcriptional activation and 3D regulatory interactions show locus- and differentiation-specific sensitivity to cohesin depletion**
 >
 > UkJin Lee, Alejandra Laguillo-Diego, Daniela Magliulo, Wilfred Wong, Kritika Kasliwal, Zhangli Ni, Lingling Cheng, Jieru Li, Bobbie Pelham-Webb, Alexandros Pertsinidis, Christina Leslie, Effie Apostolou
->
-> Preprint: [bioRxiv 2025.02.13.638153](https://www.biorxiv.org/content/10.1101/2025.02.13.638153v1)
 
 ## Overview
 
@@ -72,6 +70,10 @@ All analyses use the **mm10 (GRCm38)** mouse genome assembly with **Gencode vM25
 ## Data availability
 
 Raw and processed data are available on the GEO database under accession number **[GSE288339](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE288339)**.
+
+## Zenodo
+
+Lee, U. Analysis code for Lee et al. Zenodo [https://doi.org/10.5281/zenodo.18765986](https://doi.org/10.5281/zenodo.18765986) (2026).
 
 ## License
 
