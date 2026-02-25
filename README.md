@@ -74,7 +74,7 @@ All analyses use the **mm10 (GRCm38)** mouse genome assembly with **Gencode vM25
 
 ## Data availability
 
-Raw and processed data are available on the GEO database under accession number **GSE288339**.
+Raw and processed data are available on the GEO database under accession number **[GSE288339](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE288339)**.
 
 ## License
 
