@@ -6,8 +6,6 @@ This repository contains the analysis code for the following publication:
 >
 > UkJin Lee, Alejandra Laguillo-Diego, Daniela Magliulo, Wilfred Wong, Kritika Kasliwal, Zhangli Ni, Lingling Cheng, Jieru Li, Bobbie Pelham-Webb, Alexandros Pertsinidis, Christina Leslie, Effie Apostolou
 >
-> *Nature Genetics* (2026)
->
 > Preprint: [bioRxiv 2025.02.13.638153](https://www.biorxiv.org/content/10.1101/2025.02.13.638153v1)
 
 ## Overview
