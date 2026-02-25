@@ -64,9 +64,6 @@ This study investigates how cohesin depletion affects transcriptional reactivati
 | `Miscellaneous_figure/` | Additional figure panels and ChIP-seq track visualization |
 | `script/` | Shared R functions (RNA-seq analysis, figure rendering, parameters), shell helpers, and Python utilities |
 | `reference_genome/` | mm10 gene annotation generation from Gencode vM25 via biomaRt |
-| `figure/` | Output directory for generated figures |
-| `data/` | Placeholder for input data files |
-| `r_data/` | Placeholder for intermediate R data objects |
 
 ## Reference genome
 
