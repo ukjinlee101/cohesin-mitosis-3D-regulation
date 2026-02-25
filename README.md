@@ -54,8 +54,8 @@ This study investigates how cohesin depletion affects transcriptional reactivati
 
 | Directory | Description |
 |-----------|-------------|
-| `RNA_RAD21/` | Integration of internal G1-phase RAD21 depletion data with published async RAD21-AID data (Hsieh et al. 2022) |
-| `RNA_NIPBL/` | Analysis of published NIPBL depletion time-course RNA-seq (GSE277236) |
+| `RNA_RAD21/` | Integration of internal G1-phase RAD21 depletion data with published async |
+| `RNA_NIPBL/` | Analysis of published NIPBL depletion time-course RNA-seq |
 
 ### Figures and utilities
 
