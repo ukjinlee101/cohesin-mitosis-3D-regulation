@@ -12,7 +12,7 @@ This repository contains the analysis code for the following publication:
 
 ## Overview
 
-This study investigates how cohesin depletion affects transcriptional reactivation and 3D genome organization during the mitosis-to-G1 transition in mouse embryonic stem cells. Analyses span Micro-C chromatin conformation capture, RNA-seq differential expression, ChIP-seq visualization, 4C-seq, and integration with published datasets.
+This study investigates how cohesin depletion affects transcriptional reactivation and 3D genome organization during the mitosis-to-G1 transition in mouse embryonic stem cells. Analyses span RNA-seq, ChIP-seq, Micro-C, 4C-seq, and integration with published datasets.
 
 ## Repository structure
 
@@ -32,7 +32,6 @@ This study investigates how cohesin depletion affects transcriptional reactivati
 | `MicroC_TAD/` | TAD boundary calling using cooltools insulation score |
 | `MicroC_CvD/` | Contact-vs-distance P(s) decay curves |
 | `MicroC_microcompartment/` | Microcompartment detection using Chromosight |
-| `MicroC_ChromHMM/` | ChromHMM overlap enrichment of loop anchors |
 
 ### Loop analysis
 
@@ -71,49 +70,13 @@ This study investigates how cohesin depletion affects transcriptional reactivati
 | `data/` | Placeholder for input data files |
 | `r_data/` | Placeholder for intermediate R data objects |
 
-## Software requirements
-
-### R packages
-
-- **Core:** tidyverse, data.table, here
-- **Differential expression:** DESeq2, apeglm, ashr, sva (ComBat-seq), limma
-- **Genomics:** GenomicRanges, GenomicFeatures, rtracklayer, biomaRt, BRGenomics, BSgenome.Mmusculus.UCSC.mm10
-- **3D genome:** GENOVA, HiCDCPlus
-- **Visualization:** ggplot2, ComplexHeatmap, plotgardener, Gviz, cowplot, patchwork, circlize
-- **Enrichment:** clusterProfiler, DOSE, LOLA
-- **Other:** Rtsne, eulerr, ggalluvial, ggbeeswarm, dbscan, igraph
-
-### Python packages
-
-- **Hi-C analysis:** cooler (0.10.2), cooltools (0.7.0+), coolpuppy (1.1.0), bioframe (0.5.0+), chromosight
-- **Bioinformatics:** pairtools (1.0.2), pysam, pybigwig, pybedtools, biopython
-- **Scientific computing:** numpy, pandas, scipy, matplotlib, seaborn, scikit-image, scikit-learn
-
-### Command-line tools
-
-- BWA-MEM, samtools, bedtools, deeptools
-- Juicer Tools (for .hic file generation)
-- HiCExplorer (for format conversion)
-- FastQC
-- CscoreTool v1.1
-- ChromHMM
-- Snakemake (workflow management)
-
-### Conda environments
-
-Conda environment YAML files are provided in relevant pipeline directories (e.g., `MicroC_pipeline/environments/`, `MicroC_CvD/environments/`, `MicroC_TAD/environments/`).
-
 ## Reference genome
 
 All analyses use the **mm10 (GRCm38)** mouse genome assembly with **Gencode vM25** gene annotations.
 
 ## Data availability
 
-Raw and processed data are available on the GEO database under accession number **GSE000000**.
-
-Published datasets reanalyzed in this study:
-- Hsieh et al. 2022 (RAD21-AID, asynchronous cells): [GSE178982](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE178982)
-- Hansen/Nora lab NIPBL depletion time-course: [GSE277236](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE277236)
+Raw and processed data are available on the GEO database under accession number **GSE288339**.
 
 ## License
 
