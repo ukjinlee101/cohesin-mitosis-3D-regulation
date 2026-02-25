@@ -36,11 +36,11 @@ This study investigates how cohesin depletion affects transcriptional reactivati
 | Directory | Description |
 |-----------|-------------|
 | `MicroC_loop_chromosight/` | Loop detection using Chromosight |
-| `MicroC_loop_fithic/` | Loop detection using FitHiC2 |
+| `MicroC_loop_fithic/` | Loop detection using FitHiC |
 | `MicroC_loop_hicdcp/` | Loop detection using HiCDC+ |
 | `MicroC_loop_analysis/` | Loop comparison across callers, APA pileups (coolpuppy), GO/LOLA enrichment, circos plots |
-| `MicroC_loop_Hansen/` | Re-scoring loops from Hansen et al. on internal Micro-C data |
-| `MicroC_loop_Tjian/` | Re-scoring loops from Hsieh et al. (GSE178982) on internal Micro-C data |
+| `MicroC_loop_Hansen/` | Re-scoring loops from [Jusef et al.](https://doi.org/10.1101/2025.01.13.632736) et al. on internal Micro-C data |
+| `MicroC_loop_Tjian/` | Re-scoring loops from [Hsieh et al.](https://doi.org/10.1038/s41588-022-01223-8) on internal Micro-C data |
 
 ### Virtual 4C and 4C-seq
 
