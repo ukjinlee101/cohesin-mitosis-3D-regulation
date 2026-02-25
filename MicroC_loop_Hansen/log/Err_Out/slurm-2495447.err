@@ -1,27 +1,0 @@
-Building DAG of jobs...
-Using shell: /usr/bin/bash
-Provided cores: 16
-Rules claiming more threads will be scaled down.
-Provided resources: mem_mb=3983, mem_mib=3799, disk_mb=3983, disk_mib=3799
-Select jobs to execute...
-
-[Fri Sep  5 16:39:26 2025]
-rule calChromoScore:
-    input: /athena/apostoloulab/scratch/ukl4001/data/cool_norm_pooled/G1DMSO_pooled_2000bp_KR.cool, /athena/apostoloulab/scratch/ukl4001/data/loop_Hansen/Hansen_union_allRes_postprocessed_2000bp.bedpe
-    output: /athena/apostoloulab/scratch/ukl4001/data/loop_Hansen/G1DMSO_pooled_union_2000bp_pu100pz100.tsv
-    jobid: 0
-    reason: Forced execution
-    wildcards: sample=G1DMSO_pooled, res=2000
-    threads: 16
-    resources: mem_mb=3983, mem_mib=3799, disk_mb=3983, disk_mib=3799, tmpdir=/athena/cayuga_0007/scratch/ukl4001/temp
-
-
-        chromosight quantify /athena/apostoloulab/scratch/ukl4001/data/loop_Hansen/Hansen_union_allRes_postprocessed_2000bp.bedpe                         /athena/apostoloulab/scratch/ukl4001/data/cool_norm_pooled/G1DMSO_pooled_2000bp_KR.cool                         /athena/apostoloulab/scratch/ukl4001/data/loop_Hansen/G1DMSO_pooled_union_2000bp_pu100pz100                         --pattern=loops                         --threads=16                         --perc-undetected=100                         --perc-zero=100
-		
-Activating conda environment: chromosight
-Matrix already balanced, reusing weights
-Preprocessing sub-matrices...
- [--------------------] 0.0% chr1-chr1[K [=-------------------] 4.5% chr2-chr2[K [==------------------] 9.1% chr3-chr3[K [===-----------------] 13.6% chr4-chr4[K [====----------------] 18.2% chr5-chr5[K [=====---------------] 22.7% chr6-chr6[K [=====---------------] 27.3% chr7-chr7[K [======--------------] 31.8% chr8-chr8[K [=======-------------] 36.4% chr9-chr9[K [========------------] 40.9% chr10-chr10[K [=========-----------] 45.5% chr11-chr11[K [==========----------] 50.0% chr12-chr12[K [===========---------] 54.5% chr13-chr13[K [============--------] 59.1% chr14-chr14[K [=============-------] 63.6% chr15-chr15[K [==============------] 68.2% chr16-chr16[K [===============-----] 72.7% chr17-chr17[K [===============-----] 77.3% chr18-chr18[K [================----] 81.8% chr19-chr19[K [=================---] 86.4% chrM-chrM[K [==================--] 90.9% chrX-chrX[K [===================-] 95.5% chrY-chrY[K [====================] 100.0% chrY-chrY
-[K [--------------------] 0.0% Kernel: 0
-[K [--------------------] 0.0% chr1-chr1[K [=-------------------] 4.5% chr2-chr2[K [==------------------] 9.1% chr3-chr3[K [===-----------------] 13.6% chr4-chr4[K [====----------------] 18.2% chr5-chr5[K [=====---------------] 22.7% chr6-chr6[K [=====---------------] 27.3% chr7-chr7[K[2025-09-06T00:26:57.257] error: *** JOB 2495447 ON c0021 CANCELLED AT 2025-09-06T00:26:57 DUE to SIGNAL Terminated ***
-[2025-09-06T00:26:57.260] error: Detected 6 oom_kill events in StepId=2495447.batch. Some of the step tasks have been OOM Killed.

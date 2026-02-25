@@ -1,8 +1,0 @@
-State (User order)	anchors.bed
-heterochromatin	0.70841
-promoter	1.32476
-enhancer	1.04459
-insulator	2.00377
-repressive	1.13782
-transcription	1.16662
-Base	31.2521708927

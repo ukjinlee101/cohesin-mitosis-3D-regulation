@@ -1,3 +1,0 @@
-SLURM_SUBMIT_DIR = /athena/cayuga_0007/scratch/ukl4001/MtoG1_analysis_code/MicroC_loop_Hansen
-PWD at runtime    = /athena/cayuga_0007/scratch/ukl4001/MtoG1_analysis_code/MicroC_loop_Hansen
-Using Snakefile: MicroC_loop_calculateChromosightScore.smk
